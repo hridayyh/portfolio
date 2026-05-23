@@ -72,6 +72,8 @@
       font-size:30px;
       font-weight:700;
       color:#38bdf8;
+      text-decoration:none;
+      cursor:pointer;
     }
 
     .nav-links{
@@ -658,6 +660,8 @@
 
       .about-image img{
         width:100%;
+        max-width:280px;
+        margin:0 auto;
       }
 
       .about-container{
@@ -762,7 +766,7 @@
   <header>
     <nav class="navbar">
 
-      <div class="logo">Hriday.</div>
+      <a href="#" class="logo" onclick="window.location.reload();">Hriday.</a>
 
       <ul class="nav-links" id="navLinks">
         <li><a href="#home">Home</a></li>
@@ -830,7 +834,7 @@
 
       <div class="about-content">
 
-        <h3>Passionate Developer & Creator</h3>
+        <h3>Passionate MERN Stack Developer</h3>
 
         <p>
           I'm a passionate web developer and creative designer who loves building modern and visually attractive websites.
@@ -1065,6 +1069,15 @@
 
 
   <script>
+
+    // Redirect to home and reset scroll on page reload
+    if (history.scrollRestoration) {
+      history.scrollRestoration = 'manual';
+    }
+    window.onload = function() {
+      window.scrollTo(0, 0);
+      history.replaceState(null, null, window.location.pathname);
+    };
 
     // Mobile Menu
 
