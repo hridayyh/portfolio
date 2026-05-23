@@ -26,6 +26,7 @@
       background:#020617;
       color:white;
       overflow-x:hidden;
+      animation:fadeIn 1.5s ease;
     }
 
     section{
@@ -139,7 +140,7 @@
 
     .hero-content{
       max-width:900px;
-      animation:fadeLeft 1s ease;
+      animation:fadeIn 1s ease;
     }
 
     .hero-content h3{
@@ -577,6 +578,15 @@
 
 
     /* Animations */
+
+    @keyframes fadeIn{
+      from{
+        opacity:0;
+      }
+      to{
+        opacity:1;
+      }
+    }
 
     @keyframes fadeLeft{
       from{
