@@ -1128,8 +1128,9 @@
     if (history.scrollRestoration) {
       history.scrollRestoration = 'manual';
     }
-    window.onload = function() {
-      // Hide preloader
+
+    // Function to hide the preloader
+    function hidePreloader() {
       const preloader = document.getElementById('preloader');
       if (preloader) {
         preloader.style.opacity = '0';
@@ -1137,9 +1138,37 @@
           preloader.style.display = 'none';
         }, 500); // Wait for the fade-out transition
       }
+    }
+
+    // Function to show the preloader (used for offline mode)
+    function showPreloader() {
+      const preloader = document.getElementById('preloader');
+      if (preloader) {
+        preloader.style.display = 'flex';
+        setTimeout(() => {
+          preloader.style.opacity = '1';
+        }, 10);
+      }
+    }
+
+    window.onload = function() {
+      // Only hide the loader if the user has an active internet connection
+      if (navigator.onLine) {
+        hidePreloader();
+      }
       window.scrollTo(0, 0);
       history.replaceState(null, null, window.location.pathname);
     };
+
+    // Listen for network changes to block the UI if the connection drops
+    window.addEventListener('offline', showPreloader);
+    
+    window.addEventListener('online', () => {
+      // Hide the loader when internet comes back (only if the page has already fully loaded)
+      if (document.readyState === 'complete') {
+        hidePreloader();
+      }
+    });
 
     // Mobile Menu
 
