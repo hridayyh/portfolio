@@ -10,7 +10,7 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
   <style>
 
@@ -78,6 +78,8 @@
       color:#38bdf8;
       text-decoration:none;
       cursor:pointer;
+      user-select:none;
+      -webkit-user-select:none;
     }
 
     .nav-links{
@@ -165,6 +167,9 @@
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
       white-space:nowrap;
+      cursor:pointer;
+      user-select:none;
+      -webkit-user-select:none;
     }
 
     .hero-content h2{
@@ -201,6 +206,10 @@
       transition:0.3s;
       cursor:pointer;
       box-shadow:0 10px 30px rgba(56,189,248,0.3);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
     }
 
     .btn:hover{
@@ -219,6 +228,12 @@
       background:transparent;
       color:white;
       border:2px solid #38bdf8;
+    }
+
+    .btn-outline:hover{
+      background:#38bdf8;
+      color:#020617;
+      box-shadow:0 10px 30px rgba(56,189,248,0.3);
     }
 
     .social-icons{
@@ -271,6 +286,17 @@
       color:#cbd5e1;
       line-height:1.9;
       margin-bottom:20px;
+    }
+
+    .about-buttons{
+      display:flex;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .about-buttons .btn{
+      padding:12px 24px;
+      font-size:14px;
     }
 
 
@@ -638,6 +664,44 @@
     }
 
 
+    /* Scroll To Top Button */
+
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 40px;
+      height: 40px;
+      background: rgba(56, 189, 248, 0.2);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      text-decoration: none;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(56,189,248,0.3);
+      transform: translateY(20px);
+    }
+
+    .scroll-top-btn.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .scroll-top-btn:hover {
+      transform: translateY(-5px);
+    }
+
+
     /* Preloader */
 
     #preloader{
@@ -676,6 +740,10 @@
         flex-direction:column;
         text-align:center;
       }
+
+      .about-buttons{
+        justify-content:center;
+      }
     }
 
 
@@ -692,6 +760,10 @@
         width:260px;
         height:100vh;
         background:#020617;
+        background:rgba(2, 6, 23, 0.85);
+        backdrop-filter:blur(15px);
+        -webkit-backdrop-filter:blur(15px);
+        border-left:1px solid rgba(255, 255, 255, 0.1);
         flex-direction:column;
         padding:50px 30px;
         transition:0.5s;
@@ -794,6 +866,19 @@
         font-size:14px;
       }
 
+      .about-buttons{
+        width:100%;
+        flex-direction:row;
+        justify-content:center;
+        gap:10px;
+        flex-wrap:nowrap;
+      }
+
+      .about-buttons .btn{
+        padding:10px 20px;
+        font-size:13px;
+      }
+
       .skills-container{
         grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
         gap:15px;
@@ -850,7 +935,7 @@
       </ul>
 
       <div class="menu-btn" id="menuBtn">
-        <i class="fa-solid fa-bars"></i>
+        <i class="bi bi-list"></i>
       </div>
 
     </nav>
@@ -864,7 +949,7 @@
     <div class="hero-content">
       <h3>Hello, I'm</h3>
 
-      <h1>Hriday S Kumar</h1>
+      <h1 onclick="window.location.reload();">Hriday S Kumar</h1>
 
       <h2>Full Stack / MERN Stack Developer </h2>
 
@@ -879,9 +964,9 @@
       </div>
 
       <div class="social-icons">
-        <a href="https://www.instagram.com/hridayyh?igsh=cHZzM3lvdWIzOGZr"><i class="fa-brands fa-instagram"></i></a>
-        <a href="https://github.com/hridayyh"><i class="fa-brands fa-github"></i></a>
-        <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/?skipRedirect=true"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="https://www.instagram.com/hridayyh?igsh=cHZzM3lvdWIzOGZr"><i class="bi bi-instagram"></i></a>
+        <a href="https://github.com/hridayyh"><i class="bi bi-github"></i></a>
+        <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/?skipRedirect=true"><i class="bi bi-linkedin"></i></a>
       </div>
 
     </div>
@@ -917,7 +1002,10 @@
           I also create creative digital content and UI designs.
         </p>
 
-        <a href="#contact" class="btn">Hire Me</a>
+        <div class="about-buttons">
+          <a href="#contact" class="btn"><i class="bi bi-send-fill"></i> Hire Me</a>
+          <a href="resume.pdf" class="btn btn-outline" target="_blank"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
+        </div>
 
       </div>
 
@@ -938,9 +1026,9 @@
       <div class="info-card">
         <div class="info-card-details">
           <h3>Full Stack/MERN Stack Developer (Intern)</h3>
-          <h4><i class="fa-solid fa-building"></i> Kakunje Software Pvt Limited</h4>
+          <h4><i class="bi bi-buildings-fill"></i> Kakunje Software Pvt Limited</h4>
         </div>
-        <span class="duration"><i class="fa-regular fa-calendar-days"></i> Feb 2026 - May 2026</span>
+        <span class="duration"><i class="bi bi-calendar-event"></i> Feb 2026 - May 2026</span>
       </div>
     </div>
 
@@ -959,9 +1047,9 @@
       <div class="info-card">
         <div class="info-card-details">
           <h3>Shree Devi Institute Of Technology</h3>
-          <h4><i class="fa-solid fa-graduation-cap"></i> Course: ISE</h4>
+          <h4><i class="bi bi-mortarboard-fill"></i> Course: ISE</h4>
         </div>
-        <span class="duration"><i class="fa-solid fa-star"></i> Grade: 8.5</span>
+        <span class="duration"><i class="bi bi-star-fill"></i> Grade: 8.5</span>
       </div>
     </div>
 
@@ -979,32 +1067,32 @@
     <div class="skills-container">
 
       <div class="skill-card">
-        <i class="fa-brands fa-html5"></i>
+        <i class="bi bi-filetype-html"></i>
         <h3>HTML5</h3>
       </div>
 
       <div class="skill-card">
-        <i class="fa-brands fa-css3-alt"></i>
+        <i class="bi bi-filetype-css"></i>
         <h3>CSS3</h3>
       </div>
 
       <div class="skill-card">
-        <i class="fa-brands fa-js"></i>
+        <i class="bi bi-filetype-js"></i>
         <h3>JavaScript</h3>
       </div>
 
       <div class="skill-card">
-        <i class="fa-brands fa-react"></i>
+        <i class="bi bi-braces-asterisk"></i>
         <h3>React.js</h3>
       </div>
 
       <div class="skill-card">
-        <i class="fa-brands fa-node-js"></i>
+        <i class="bi bi-server"></i>
         <h3>Node.js</h3>
       </div>
 
       <div class="skill-card">
-        <i class="fa-solid fa-database"></i>
+        <i class="bi bi-database-fill"></i>
         <h3>MongoDB</h3>
       </div>
 
@@ -1028,7 +1116,7 @@
 
         <div class="project-content">
 
-          <span class="project-badge"><i class="fa-solid fa-graduation-cap"></i> Final Year Project</span>
+          <span class="project-badge"><i class="bi bi-mortarboard-fill"></i> Final Year Project</span>
           <h3>AI Chatbot For Mental Health Treatment</h3>
 
           <p>
@@ -1046,7 +1134,7 @@
 
         <div class="project-content">
 
-          <span class="project-badge"><i class="fa-solid fa-briefcase"></i> Client Project</span>
+          <span class="project-badge"><i class="bi bi-briefcase-fill"></i> Client Project</span>
           <h3>ERP & Inventory System</h3>
 
           <p>
@@ -1064,7 +1152,7 @@
 
         <div class="project-content">
 
-          <span class="project-badge"><i class="fa-solid fa-folder-open"></i> Mini Project</span>
+          <span class="project-badge"><i class="bi bi-folder2-open"></i> Mini Project</span>
           <h3>Book Store</h3>
 
           <p>
@@ -1118,19 +1206,25 @@
   <div id="contactModal" class="modal">
     <div class="modal-content">
       <div class="modal-icon">
-        <i class="fa-solid fa-circle-info"></i>
+        <i class="bi bi-info-circle-fill"></i>
       </div>
       <h3>Under Development</h3>
       <p>
         Form integration is currently in progress. Please reach out to me directly via the links below!
       </p>
       <div class="modal-socials">
-        <a href="https://www.linkedin.com/in/hriday-s-kumar-ab62a5256" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-        <a href="https://www.instagram.com/hridayyh?igsh=cHZzM3lvdWIzOGZr" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://www.linkedin.com/in/hriday-s-kumar-ab62a5256" target="_blank" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+        <a href="https://www.instagram.com/hridayyh?igsh=cHZzM3lvdWIzOGZr" target="_blank" title="Instagram"><i class="bi bi-instagram"></i></a>
       </div>
       <button class="btn" id="closeModalBtn">Close</button>
     </div>
   </div>
+
+  <!-- Scroll To Top Button -->
+
+  <a href="#home" id="scrollTopBtn" class="scroll-top-btn">
+    <i class="bi bi-arrow-up"></i>
+  </a>
 
   <!-- Footer -->
 
@@ -1196,11 +1290,11 @@
 
       const icon = menuBtn.querySelector('i');
       if (navLinks.classList.contains('active')) {
-        icon.classList.remove('fa-bars');
-        icon.classList.add('fa-xmark');
+        icon.classList.remove('bi-list');
+        icon.classList.add('bi-x-lg');
       } else {
-        icon.classList.remove('fa-xmark');
-        icon.classList.add('fa-bars');
+        icon.classList.remove('bi-x-lg');
+        icon.classList.add('bi-list');
       }
     });
 
@@ -1210,11 +1304,20 @@
       item.addEventListener('click', () => {
         navLinks.classList.remove('active');
         const icon = menuBtn.querySelector('i');
-        icon.classList.remove('fa-xmark');
-        icon.classList.add('fa-bars');
+        icon.classList.remove('bi-x-lg');
+        icon.classList.add('bi-list');
       });
     });
 
+    // Close sidebar when clicking outside of it
+    document.addEventListener('click', (e) => {
+      if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
+        navLinks.classList.remove('active');
+        const icon = menuBtn.querySelector('i');
+        icon.classList.remove('bi-x-lg');
+        icon.classList.add('bi-list');
+      }
+    });
 
     // Scroll Animation
 
@@ -1328,6 +1431,31 @@
       if(e.target === contactModal){
         contactModal.style.display = 'none';
       }
+    });
+
+    // Scroll To Top Button Logic
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+    const aboutSection = document.getElementById('about');
+    let lastScrollTop = 0;
+    let scrollTimeout;
+
+    window.addEventListener('scroll', () => {
+      let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+      let aboutTop = aboutSection.offsetTop;
+
+      if (currentScroll > aboutTop && currentScroll < lastScrollTop) {
+        scrollTopBtn.classList.add('show');
+      } else {
+        scrollTopBtn.classList.remove('show');
+      }
+
+      lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+
+      // Clear previous timeout and set a new one to hide the arrow when scrolling stops
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        scrollTopBtn.classList.remove('show');
+      }, 1500); // Hides 1.5 seconds after the user stops scrolling
     });
 
   </script>
