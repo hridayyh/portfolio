@@ -48,7 +48,6 @@
       color:#38bdf8;
     }
 
-
     /* Navbar */
 
     header{
@@ -191,6 +190,14 @@
 
     .btn:hover{
       transform:translateY(-5px);
+    }
+
+    .btn:disabled{
+      background:#1e293b;
+      color:#64748b;
+      box-shadow:none;
+      cursor:not-allowed;
+      transform:translateY(0);
     }
 
     .btn-outline{
@@ -460,6 +467,16 @@
     .contact-right textarea:focus{
       border-color:#38bdf8;
       box-shadow:0 0 10px rgba(56,189,248,0.1);
+    }
+
+    .contact-right input.error,
+    .contact-right textarea.error{
+      border-color:#ef4444;
+    }
+
+    .contact-right input.error::placeholder,
+    .contact-right textarea.error::placeholder{
+      color:#ef4444;
     }
 
     .contact-right .btn{
@@ -1027,11 +1044,11 @@
       </div>
 
       <div class="contact-right">
-        <form id="contactForm">
-          <input type="text" placeholder="Your Name" required>
-          <input type="email" placeholder="Your Email" required>
-          <textarea rows="6" placeholder="Your Message" required></textarea>
-          <button type="submit" class="btn">Send Message</button>
+        <form id="contactForm" novalidate>
+          <input type="text" placeholder="Your Name">
+          <input type="email" placeholder="Your Email">
+          <textarea rows="6" placeholder="Your Message"></textarea>
+          <button type="submit" class="btn" id="submitBtn">Send Message</button>
         </form>
       </div>
 
@@ -1064,7 +1081,6 @@
   <footer>
     <p>© 2026 Hriday. All Rights Reserved.</p>
   </footer>
-
 
   <script>
 
@@ -1111,10 +1127,84 @@
     const contactForm = document.getElementById('contactForm');
     const contactModal = document.getElementById('contactModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
+    const formInputs = contactForm.querySelectorAll('input, textarea');
+    const submitBtn = document.getElementById('submitBtn');
+    let timerInterval;
+
+    function startTimerUI(endTime) {
+      submitBtn.disabled = true;
+      
+      const updateTimerDisplay = () => {
+        let timeLeft = Math.ceil((endTime - Date.now()) / 1000);
+        
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          localStorage.removeItem('contactTimerEnd');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+          return;
+        }
+
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        submitBtn.textContent = `Wait ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      };
+      
+      updateTimerDisplay();
+      timerInterval = setInterval(updateTimerDisplay, 1000);
+    }
+
+    // Check if timer is already running on page load
+    const savedEndTime = localStorage.getItem('contactTimerEnd');
+    if (savedEndTime) {
+      const endTime = parseInt(savedEndTime, 10);
+      if (Date.now() < endTime) {
+        startTimerUI(endTime);
+      } else {
+        localStorage.removeItem('contactTimerEnd');
+      }
+    }
+
+    // Store original placeholders and remove errors on input
+    formInputs.forEach(input => {
+      input.dataset.origPlaceholder = input.placeholder;
+      input.addEventListener('input', () => {
+        if (input.classList.contains('error')) {
+          input.classList.remove('error');
+          input.placeholder = input.dataset.origPlaceholder;
+        }
+      });
+    });
 
     contactForm.addEventListener('submit', function(e) {
       e.preventDefault(); // Prevents page reload
-      contactModal.style.display = 'flex';
+      let isValid = true;
+
+      formInputs.forEach(input => {
+        if (input.value.trim() === '') {
+          isValid = false;
+          input.classList.add('error');
+          let fieldName = input.dataset.origPlaceholder.replace('Your ', '');
+          input.placeholder = `${fieldName} is required!`;
+        } else if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim())) {
+          isValid = false;
+          input.classList.add('error');
+          input.value = '';
+          input.placeholder = 'Valid Email is required!';
+        }
+      });
+
+      if (isValid) {
+        contactModal.style.display = 'flex';
+
+        // 5-Minute Timer Logic with LocalStorage
+        const existingEndTime = localStorage.getItem('contactTimerEnd');
+        if (!existingEndTime || Date.now() >= parseInt(existingEndTime, 10)) {
+          const endTime = Date.now() + 300 * 1000; // 300 seconds = 5 minutes
+          localStorage.setItem('contactTimerEnd', endTime.toString());
+          startTimerUI(endTime);
+        }
+      }
     });
 
     closeModalBtn.addEventListener('click', function() {
