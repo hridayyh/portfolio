@@ -216,7 +216,7 @@
     html.light-theme header { background: rgba(248, 250, 252, 0.85); border-bottom: 1px solid rgba(0,0,0,0.05); }
     html.light-theme .nav-links a { color: #334155; }
     html.light-theme .nav-links a:hover { color: #0ea5e9; }
-    html.light-theme .hero-content h1 { background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    html.light-theme .hero-content h1 { background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
     html.light-theme .hero-content h2 { color: #334155; }
     html.light-theme .hero-content h3, html.light-theme .hero-content p { color: #475569; }
     html.light-theme .hero::before { filter: blur(150px); opacity: 0.15; }
@@ -292,6 +292,7 @@
       letter-spacing:-1px;
       background:linear-gradient(135deg, #e0f2fe 0%, #38bdf8 100%);
       -webkit-background-clip:text;
+      background-clip:text;
       -webkit-text-fill-color:transparent;
       white-space:nowrap;
       cursor:pointer;
@@ -1529,7 +1530,7 @@
 
         <div class="about-buttons">
           <a href="#contact" class="btn"><i class="bi bi-send-fill"></i> Hire Me</a>
-                <a href="#" title="Resume coming soon" class="btn btn-outline"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
+          <a href="" id="viewResumeBtn" title="Resume coming soon" class="btn btn-outline"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
         </div>
 
       </div>
@@ -1992,6 +1993,15 @@
       toast.classList.remove('show-toast');
       clearTimeout(toastTimeout);
     });
+
+    // View Resume Button Logic
+    const viewResumeBtn = document.getElementById('viewResumeBtn');
+    if (viewResumeBtn) {
+      viewResumeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        showToast('Failed to load resume. Please try again later.');
+      });
+    }
 
     // Form Submission Modal Logic
 
