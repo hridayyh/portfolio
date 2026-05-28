@@ -510,50 +510,30 @@
     .about-layout {
       display: grid;
       grid-template-columns: 0.35fr 1.65fr;
-      gap: 80px;
+      column-gap: 80px;
+      row-gap: 16px;
       align-items: start;
     }
     .about-visual {
       position: relative;
-    }
-    .about-image-frame {
-      position: relative;
-    }
-    .about-image-frame img {
-      border-radius: 2px;
-      filter: grayscale(20%);
-      transition: filter 0.4s;
-    }
-    .about-image-frame:hover img { filter: grayscale(0%); }
-    .about-image-frame::before {
-      content: '';
-      position: absolute;
-      top: -12px; left: -12px;
-      right: -12px; bottom: -12px;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      pointer-events: none;
-      transition: 0.4s;
-    }
-    .about-image-frame:hover::before { 
-      top: -16px; left: -16px; 
-      right: -16px; bottom: -16px; 
+      grid-column: 1;
+      grid-row: 1 / span 2;
     }
     .about-stat-row {
       display: flex;
       gap: 2px;
-      margin-top: 24px;
+      margin-top: 0;
     }
     .about-stat {
       flex: 1;
       background: var(--bg2);
       border: 1px solid var(--border-dim);
-      padding: 20px;
+      padding: 16px 12px;
       text-align: center;
     }
     .about-stat .num {
       font-family: var(--font-display);
-      font-size: 36px;
+      font-size: 30px;
       font-weight: 300;
       color: var(--gold);
       line-height: 1;
@@ -567,7 +547,11 @@
       text-transform: uppercase;
       color: var(--text-dim);
     }
-    .about-text p {
+    .about-text-content {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .about-text-content p {
       color: var(--text-muted);
       line-height: 1.9;
       margin-bottom: 20px;
@@ -577,7 +561,9 @@
       display: flex;
       gap: 14px;
       flex-wrap: wrap;
-      margin-top: 36px;
+      margin-top: 12px;
+      grid-column: 2;
+      grid-row: 2;
     }
 
     /* ── Experience Section ── */
@@ -1124,8 +1110,12 @@
 
     /* ── Responsive ── */
     @media (max-width: 1024px) {
-      .about-layout { grid-template-columns: 1fr; gap: 48px; }
-      .about-visual { max-width: 380px; }
+      .about-layout { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 32px; 
+      }
+      .about-visual { max-width: 100%; width: 100%; }
       .contact-layout { grid-template-columns: 1fr; gap: 48px; }
     }
 
@@ -1179,8 +1169,8 @@
     @media (max-width: 480px) {
       .hero-title { font-size: clamp(48px, 12vw, 64px); }
       .about-stat-row { gap: 2px; }
-      .about-stat { padding: 14px; }
-      .about-stat .num { font-size: 28px; }
+      .about-stat { padding: 12px 8px; }
+      .about-stat .num { font-size: 26px; margin-bottom: 2px; }
       .skills-grid { grid-template-columns: repeat(2, 1fr); }
       .footer-inner { flex-direction: column; text-align: center; }
       .projects-grid { grid-template-columns: 1fr; background: none; gap: 12px; }
@@ -1278,18 +1268,7 @@
     </div>
 
     <div class="about-layout">
-      <div class="about-visual reveal reveal-delay-1">
-        <div class="about-image-frame">
-          <img src="hriday.jpg" alt="Hriday S Kumar">
-        </div>
-        <div class="about-stat-row">
-          <div class="about-stat"><span class="num">4+</span><span class="lbl">Months Exp</span></div>
-          <div class="about-stat"><span class="num">3+</span><span class="lbl">Projects</span></div>
-          <div class="about-stat"><span class="num">6+</span><span class="lbl">Skills</span></div>
-        </div>
-      </div>
-
-      <div class="about-text reveal reveal-delay-2">
+      <div class="about-text-content reveal reveal-delay-1">
         <p>
           I'm a passionate web developer and creative designer who loves building modern and visually attractive websites.
           I enjoy creating smooth user experiences and professional interfaces.
@@ -1298,11 +1277,19 @@
           I work with HTML, CSS, JavaScript, React, Node.js and modern web technologies.
           I also create creative digital content and UI designs.
         </p>
-        <div class="about-cta">
-          <a href="#contact" class="btn btn-primary"><span>Hire Me</span> <i class="bi bi-send-fill"></i></a>
-          <a href="" id="viewResumeBtn" class="btn btn-outline"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
+      </div>
+
+      <div class="about-visual reveal reveal-delay-2">
+        <div class="about-stat-row">
+          <div class="about-stat"><span class="num">4+</span><span class="lbl">Months Exp</span></div>
+          <div class="about-stat"><span class="num">3+</span><span class="lbl">Projects</span></div>
+          <div class="about-stat"><span class="num">6+</span><span class="lbl">Skills</span></div>
         </div>
       </div>
+
+      <div class="about-cta reveal reveal-delay-3">
+          <a href="#contact" class="btn btn-primary"><span>Hire Me</span> <i class="bi bi-send-fill"></i></a>
+          <a href="" id="viewResumeBtn" class="btn btn-outline"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
     </div>
   </section>
 
