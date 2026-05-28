@@ -1552,10 +1552,12 @@
       }
     }, 150);
 
+    let isPreloaderFinished = false;
     const finishPreloader = () => {
+      if (isPreloaderFinished) return;
+      isPreloaderFinished = true;
       isLoaded = true;
       try { 
-        window.scrollTo(0, 0); 
         history.replaceState(null, null, window.location.pathname); 
       } catch (e) {} // Prevents local file:/// URL security errors
     };
