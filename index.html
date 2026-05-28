@@ -1507,7 +1507,7 @@
   </footer>
 
   <script>
-    if (history.scrollRestoration) history.scrollRestoration = 'manual';
+    if (history.scrollRestoration) history.scrollRestoration = 'auto';
 
     const preloader = document.getElementById('preloader');
     const loaderProgress = document.getElementById('loaderProgress');
@@ -1557,9 +1557,6 @@
       if (isPreloaderFinished) return;
       isPreloaderFinished = true;
       isLoaded = true;
-      try { 
-        history.replaceState(null, null, window.location.pathname); 
-      } catch (e) {} // Prevents local file:/// URL security errors
     };
     
     window.addEventListener('load', finishPreloader);
