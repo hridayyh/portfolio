@@ -13,7 +13,12 @@
 
   <script>
     (function() {
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      const savedTheme = sessionStorage.getItem('theme');
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light-theme');
+      } else if (savedTheme === 'dark') {
+        document.documentElement.classList.remove('light-theme');
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
         document.documentElement.classList.add('light-theme');
       }
     })();
@@ -94,43 +99,38 @@
       transition: opacity 0.6s ease, visibility 0.6s ease;
     }
     #preloader.hidden { opacity: 0; visibility: hidden; }
-    .preloader-logo {
-      font-family: var(--font-display);
-      font-size: 48px;
-      font-weight: 300;
-      color: var(--gold);
-      letter-spacing: 8px;
-      margin-right: -8px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      transform: translateZ(0);
-      will-change: opacity;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      animation: preloaderPulse 1.5s ease-in-out infinite;
+    .loader-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      animation: fastIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
-    .preloader-bar {
-      width: 120px;
+    .loader-bar-wrap {
+      width: 160px;
       height: 1px;
       background: var(--border);
       position: relative;
       overflow: hidden;
     }
-    .preloader-bar::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
+    .loader-bar-progress {
+      width: 0%;
+      height: 100%;
       background: var(--gold);
-      animation: preloaderSlide 1.5s ease-in-out infinite;
+      transition: width 0.3s ease;
     }
-    @keyframes preloaderPulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 0.99; }
+    .loader-status {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+      text-align: center;
     }
-    @keyframes preloaderSlide {
-      0% { left: -100%; }
-      100% { left: 100%; }
+    @keyframes fastIn {
+      0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
     }
 
     /* ── Header / Navbar ── */
@@ -252,7 +252,26 @@
     .theme-option:hover { background: var(--gold-dim); color: var(--gold); }
     .theme-option.active { color: var(--gold); }
 
-    .menu-btn { display: none; font-size: 22px; cursor: pointer; color: var(--text-muted); }
+    .menu-btn {
+      display: none;
+      width: 26px;
+      height: 18px;
+      cursor: pointer;
+      position: relative;
+      z-index: 1001; /* Keeps it above the sliding sidebar */
+    }
+    .menu-btn span {
+      display: block; position: absolute; height: 2px; width: 100%;
+      background: var(--text-muted); border-radius: 2px; opacity: 1; left: 0;
+      transform: rotate(0deg); transition: 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    .menu-btn span:nth-child(1) { top: 0; }
+    .menu-btn span:nth-child(2) { top: 8px; }
+    .menu-btn span:nth-child(3) { top: 16px; }
+    
+    .menu-btn.open span:nth-child(1) { top: 8px; transform: rotate(45deg); background: var(--gold); }
+    .menu-btn.open span:nth-child(2) { width: 0%; opacity: 0; left: 50%; }
+    .menu-btn.open span:nth-child(3) { top: 8px; transform: rotate(-45deg); background: var(--gold); }
 
     /* ── Hero ── */
     .hero {
@@ -571,17 +590,23 @@
     .exp-card {
       background: var(--bg3);
       border: 1px solid var(--border-dim);
-      border-left: 2px solid var(--gold);
       padding: 40px 44px;
       position: relative;
       transition: var(--transition);
     }
     .exp-card:hover {
       border-color: var(--border);
-      border-left-color: var(--gold-light);
-      transform: translateX(4px);
-      box-shadow: -4px 0 30px rgba(201,169,110,0.08);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
+    .exp-card::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    .exp-card:hover::after { width: 100%; }
     .exp-top {
       display: flex;
       justify-content: space-between;
@@ -936,6 +961,26 @@
     .form-field input::placeholder,
     .form-field textarea::placeholder { color: transparent; }
 
+    .contact-connect-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      text-align: center;
+    }
+    .contact-connect-box h4 {
+      font-family: var(--font-display);
+      font-size: clamp(26px, 4vw, 32px);
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+    }
+    .contact-connect-box h4 em { font-style: italic; color: var(--gold); }
+    .contact-connect-box .hero-social { margin-top: 0; animation: none; gap: 16px; }
+    .contact-connect-box .hero-social a { width: 44px; height: 44px; font-size: 18px; }
+
     /* ── Modal ── */
     .modal {
       display: none;
@@ -1066,9 +1111,8 @@
       gap: 16px;
     }
     .footer-copy {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 1px;
+      font-family: var(--font-body);
+      font-size: 14px;
       color: var(--text-dim);
     }
     .footer-logo {
@@ -1139,8 +1183,6 @@
       }
       .nav-links.active { right: 0; }
       .nav-links a { font-size: 13px; }
-      .sidebar-close { display: block; position: absolute; top: 24px; right: 24px; font-size: 24px; color: var(--text-muted); cursor: pointer; transition: 0.3s; }
-      .sidebar-close:hover { color: var(--gold); }
 
       .theme-toggle-container { flex-direction: column; align-items: flex-start; }
       .theme-dropdown {
@@ -1158,7 +1200,6 @@
       .skills-grid { grid-template-columns: repeat(2, 1fr); }
       .exp-card { padding: 28px 24px; }
       .exp-top { flex-direction: column; gap: 16px; }
-      .edu-card { flex-direction: column; padding: 28px 24px; }
       .edu-card { flex-direction: column; padding: 28px 24px; align-items: flex-start; }
       .edu-grade { text-align: left; }
       .contact-form-wrap { padding: 28px 24px; }
@@ -1183,7 +1224,6 @@
 
     /* Light theme adjustments */
     html.light-theme .hero-grid { opacity: 0.4; }
-    html.light-theme .preloader-logo { color: var(--gold); }
     html.light-theme .project-tile { background: var(--bg); }
     html.light-theme .project-tile:hover { background: var(--bg2); }
   </style>
@@ -1192,8 +1232,12 @@
 
   <!-- Preloader -->
   <div id="preloader">
-    <div class="preloader-logo">H.</div>
-    <div class="preloader-bar"></div>
+    <div class="loader-content">
+      <div class="loader-status" id="loaderStatus">Initializing...</div>
+      <div class="loader-bar-wrap">
+        <div class="loader-bar-progress" id="loaderProgress"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Navbar -->
@@ -1224,7 +1268,11 @@
         </li>
       </ul>
 
-      <div class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></div>
+      <div class="menu-btn" id="menuBtn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
     </nav>
   </header>
 
@@ -1236,7 +1284,7 @@
 
     <div class="hero-content">
       <div class="hero-eyebrow">Hello, I'm</div>
-      <h1 class="hero-title" onclick="window.location.reload();">Hriday <em>S Kumar</em></h1>
+      <h1 class="hero-title">Hriday <em>S Kumar</em></h1>
       <p class="hero-subtitle">Full Stack / MERN Stack Developer</p>
       <p class="hero-desc">
         I create modern responsive websites, smooth UI experiences,
@@ -1415,40 +1463,17 @@
       </div>
 
       <div class="contact-form-wrap reveal reveal-delay-2">
-        <form id="contactForm" novalidate>
-          <div class="form-field">
-            <input type="text" name="name" id="fieldName" placeholder="Your Name">
-            <label for="fieldName">Your Name</label>
+        <div class="contact-connect-box">
+          <h4>Let's <em>Connect</em></h4>
+          <div class="hero-social">
+            <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/" target="_blank" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+            <a href="https://github.com/hridayyh" target="_blank" title="GitHub"><i class="bi bi-github"></i></a>
+            <a href="https://www.instagram.com/hridayyh?igsh=cHZzM3lvdWIzOGZr" target="_blank" title="Instagram"><i class="bi bi-instagram"></i></a>
           </div>
-          <div class="form-field">
-            <input type="email" name="email" id="fieldEmail" placeholder="Your Email">
-            <label for="fieldEmail">Your Email</label>
-          </div>
-          <div class="form-field">
-            <textarea rows="5" name="message" id="fieldMsg" placeholder="Your Message"></textarea>
-            <label for="fieldMsg">Your Message</label>
-          </div>
-          <button type="submit" class="btn btn-primary" id="submitBtn" style="width:100%;justify-content:center;margin-top:8px;">
-            <span>Send Message</span> <i class="bi bi-send-fill"></i>
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   </section>
-
-  <!-- Modal -->
-  <div id="contactModal" class="modal">
-    <div class="modal-box">
-      <div class="modal-icon-wrap"><i class="bi bi-info-circle-fill"></i></div>
-      <h3>Under Development</h3>
-      <p>Form integration is currently in progress. Please reach out to me directly via the links below!</p>
-      <div class="modal-links">
-        <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/" target="_blank" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
-        <a href="https://www.instagram.com/hridayyh?igsh=cHZzM3lvdWIzOGZr" target="_blank" title="Instagram"><i class="bi bi-instagram"></i></a>
-      </div>
-      <button class="btn btn-outline" id="closeModalBtn" style="width:100%;justify-content:center;">Close</button>
-    </div>
-  </div>
 
   <!-- Toast -->
   <div id="toast" class="toast">
@@ -1472,50 +1497,74 @@
   <footer>
     <div class="footer-inner">
       <span class="footer-logo">Hriday.</span>
-      <p class="footer-copy">© 2026 Hriday S Kumar. All Rights Reserved.</p>
+      <p class="footer-copy">&copy; 2026 Hriday S Kumar. All Rights Reserved.</p>
     </div>
   </footer>
 
   <script>
     if (history.scrollRestoration) history.scrollRestoration = 'manual';
 
-    function hidePreloader() {
-      const el = document.getElementById('preloader');
-      if (el) { el.classList.add('hidden'); setTimeout(() => el.style.display = 'none', 600); }
-    }
-    function showPreloader() {
-      const el = document.getElementById('preloader');
-      if (el) { el.style.display = 'flex'; requestAnimationFrame(() => el.classList.remove('hidden')); }
+    const preloader = document.getElementById('preloader');
+    const loaderProgress = document.getElementById('loaderProgress');
+    const loaderStatus = document.getElementById('loaderStatus');
+    
+    let progress = 0;
+    let isLoaded = document.readyState === 'complete';
+    let isOnline = navigator.onLine;
+    let offlineTextIdx = 0;
+    const offlineTexts = ["Connection lost", "Reconnecting...", "Waiting for network..."];
+
+    function updateLoaderStatus() {
+      if (!loaderStatus) return;
+      if (!isOnline) {
+        loaderStatus.textContent = offlineTexts[offlineTextIdx % offlineTexts.length];
+      } else {
+        if (progress >= 100) loaderStatus.textContent = "Here you go!";
+        else if (progress > 85) loaderStatus.textContent = "Almost there...";
+        else if (progress > 55) loaderStatus.textContent = "Loading interface...";
+        else if (progress > 25) loaderStatus.textContent = "Loading assets...";
+        else loaderStatus.textContent = "Connecting...";
+      }
     }
 
-    let loadProgress = 0;
-    const progressEl = document.getElementById('preloaderProgress');
-    
-    // Progressively load up to 90% while waiting for large assets/slow internet
-    const progressInterval = setInterval(() => {
-      if (navigator.onLine) {
-        loadProgress += (90 - loadProgress) * 0.1;
-        if (progressEl) progressEl.style.width = loadProgress + '%';
+    setInterval(() => { if (!isOnline) { offlineTextIdx++; updateLoaderStatus(); } }, 2000);
+
+    const loaderInterval = setInterval(() => {
+      if (isOnline) {
+        if (!isLoaded && progress < 90) progress += (Math.random() * 8 + 2);
+        else if (isLoaded) progress = 100;
+        if (progress > 90 && !isLoaded) progress = 90;
+      }
+      
+      if (loaderProgress) loaderProgress.style.width = progress + '%';
+      updateLoaderStatus();
+
+      if (progress >= 100 && isLoaded) {
+        clearInterval(loaderInterval);
+        setTimeout(() => { // Wait 0.5 sec as requested
+          if (preloader) { preloader.classList.add('hidden'); setTimeout(() => preloader.style.display = 'none', 600); }
+        }, 500);
       }
     }, 150);
 
-    // When everything is perfectly loaded, snap to 100% and hide
-    function finishLoading() {
-      clearInterval(progressInterval);
-      if (progressEl) progressEl.style.width = '100%';
-      setTimeout(hidePreloader, 400);
-    }
-
-    window.onload = () => {
-      if (navigator.onLine) hidePreloader();
-      if (navigator.onLine) finishLoading();
-      window.scrollTo(0, 0);
-      history.replaceState(null, null, window.location.pathname);
+    const finishPreloader = () => {
+      isLoaded = true;
+      try { 
+        window.scrollTo(0, 0); 
+        history.replaceState(null, null, window.location.pathname); 
+      } catch (e) {} // Prevents local file:/// URL security errors
     };
     
-    window.addEventListener('offline', showPreloader);
-    window.addEventListener('online', () => { if (document.readyState === 'complete') hidePreloader(); });
-    window.addEventListener('online', () => { if (document.readyState === 'complete') finishLoading(); });
+    window.addEventListener('load', finishPreloader);
+    // Safety fallback: forcefully finish loading after 3 seconds if external assets take too long
+    setTimeout(finishPreloader, 3000);
+
+    window.addEventListener('offline', () => { isOnline = false; updateLoaderStatus(); });
+    window.addEventListener('online', () => { 
+      isOnline = true; 
+      updateLoaderStatus();
+      if (document.readyState === 'complete') isLoaded = true;
+    });
 
     // Sticky header
     const mainHeader = document.getElementById('mainHeader');
@@ -1531,24 +1580,23 @@
     
     sidebarClose.addEventListener('click', () => {
       navLinks.classList.remove('active');
-      menuBtn.querySelector('i').className = 'bi bi-list';
+      menuBtn.classList.remove('open');
     });
 
     menuBtn.addEventListener('click', () => {
       navLinks.classList.toggle('active');
-      const icon = menuBtn.querySelector('i');
-      icon.className = navLinks.classList.contains('active') ? 'bi bi-x-lg' : 'bi bi-list';
+      menuBtn.classList.toggle('open');
     });
     document.querySelectorAll('.nav-links a').forEach(a => {
       a.addEventListener('click', () => {
         navLinks.classList.remove('active');
-        menuBtn.querySelector('i').className = 'bi bi-list';
+        menuBtn.classList.remove('open');
       });
     });
     document.addEventListener('click', e => {
       if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
         navLinks.classList.remove('active');
-        menuBtn.querySelector('i').className = 'bi bi-list';
+        menuBtn.classList.remove('open');
       }
     });
 
@@ -1564,7 +1612,7 @@
     const themeDropdown = document.getElementById('themeDropdown');
     const themeOptions = document.querySelectorAll('.theme-option');
     const currentThemeIcon = document.getElementById('currentThemeIcon');
-    let currentTheme = 'system';
+    let currentTheme = sessionStorage.getItem('theme') || 'system';
 
     function updateThemeUI(theme) {
       if (theme === 'light') { document.documentElement.classList.add('light-theme'); currentThemeIcon.className = 'bi bi-sun-fill'; }
@@ -1579,7 +1627,14 @@
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (currentTheme === 'system') updateThemeUI('system'); });
     themeToggleBtn.addEventListener('click', e => { e.stopPropagation(); themeDropdown.classList.toggle('show'); });
     themeOptions.forEach(opt => {
-      opt.addEventListener('click', e => { e.stopPropagation(); currentTheme = opt.dataset.theme; updateThemeUI(currentTheme); themeDropdown.classList.remove('show'); });
+      opt.addEventListener('click', e => { 
+        e.stopPropagation(); 
+        currentTheme = opt.dataset.theme; 
+        if (currentTheme === 'system') sessionStorage.removeItem('theme');
+        else sessionStorage.setItem('theme', currentTheme);
+        updateThemeUI(currentTheme); 
+        themeDropdown.classList.remove('show'); 
+      });
     });
     document.addEventListener('click', e => { if (!themeToggleBtn.contains(e.target) && !themeDropdown.contains(e.target)) themeDropdown.classList.remove('show'); });
 
@@ -1603,56 +1658,6 @@
       e.preventDefault();
       showToast('Failed to load resume. Please try again later.');
     });
-
-    // Contact form
-    const contactForm = document.getElementById('contactForm');
-    const contactModal = document.getElementById('contactModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const submitBtn = document.getElementById('submitBtn');
-    let timerInterval;
-
-    function startTimerUI(endTime) {
-      submitBtn.disabled = true;
-      const update = () => {
-        let left = Math.ceil((endTime - Date.now()) / 1000);
-        if (left <= 0) {
-          clearInterval(timerInterval);
-          localStorage.removeItem('contactTimerEnd');
-          submitBtn.disabled = false;
-          submitBtn.querySelector('span').textContent = 'Send Message';
-          return;
-        }
-        submitBtn.querySelector('span').textContent = `Wait ${String(Math.floor(left/60)).padStart(2,'0')}:${String(left%60).padStart(2,'0')}`;
-      };
-      update();
-      timerInterval = setInterval(update, 1000);
-    }
-    const savedEnd = localStorage.getItem('contactTimerEnd');
-    if (savedEnd && Date.now() < parseInt(savedEnd)) startTimerUI(parseInt(savedEnd));
-    else if (savedEnd) localStorage.removeItem('contactTimerEnd');
-
-    contactForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const inputs = contactForm.querySelectorAll('input, textarea');
-      let valid = true;
-      inputs.forEach(i => {
-        if (!i.value.trim()) valid = false;
-        else if (i.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(i.value.trim())) valid = false;
-      });
-      if (valid) {
-        contactModal.style.display = 'flex';
-        const existing = localStorage.getItem('contactTimerEnd');
-        if (!existing || Date.now() >= parseInt(existing)) {
-          const end = Date.now() + 300000;
-          localStorage.setItem('contactTimerEnd', end.toString());
-          startTimerUI(end);
-        }
-      } else {
-        showToast('Please fill all fields correctly!');
-      }
-    });
-    closeModalBtn.addEventListener('click', () => contactModal.style.display = 'none');
-    window.addEventListener('click', e => { if (e.target === contactModal) contactModal.style.display = 'none'; });
 
     // Scroll top
     const scrollTopBtn = document.getElementById('scrollTopBtn');
