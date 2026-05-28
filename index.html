@@ -1604,6 +1604,23 @@
       }
     });
 
+    // Ensure back button correctly scrolls to the previous section
+    window.addEventListener('hashchange', () => {
+      // Close mobile menu if it is open while navigating back
+      navLinks.classList.remove('active');
+      menuBtn.classList.remove('open');
+
+      setTimeout(() => {
+        const hash = window.location.hash;
+        if (hash) {
+          const target = document.querySelector(hash);
+          if (target) target.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 10);
+    });
+
     // Scroll reveal
     const revealEls = document.querySelectorAll('.reveal');
     const revealObserver = new IntersectionObserver((entries) => {
