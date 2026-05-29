@@ -1248,7 +1248,7 @@
   <!-- Navbar -->
   <header id="mainHeader">
     <nav class="navbar">
-      <a href="#" class="logo" onclick="window.location.reload(); return false;">Hriday</a>
+      <a href="#home" class="logo">Hriday</a>
 
       <ul class="nav-links" id="navLinks">
         <li class="sidebar-close" id="sidebarClose"><i class="bi bi-x-lg"></i></li>
@@ -1516,41 +1516,49 @@
     let progress = 0;
     let isLoaded = document.readyState === 'complete';
     let isOnline = navigator.onLine;
-    let offlineTextIdx = 0;
-    const offlineTexts = ["Connection lost", "Reconnecting...", "Waiting for network..."];
 
     function updateLoaderStatus() {
       if (!loaderStatus) return;
+      const displayProgress = Math.floor(progress);
+      
       if (!isOnline) {
-        loaderStatus.textContent = offlineTexts[offlineTextIdx % offlineTexts.length];
+        const offlineTexts = [
+          "Connection lost...", 
+          "Waiting for network...", 
+          "Trying to reconnect...", 
+          "Check your internet..."
+        ];
+        const textIdx = Math.floor(Date.now() / 2000) % offlineTexts.length;
+        loaderStatus.textContent = `${offlineTexts[textIdx]} ${displayProgress}%`;
       } else {
-        if (progress >= 100) loaderStatus.textContent = "Here you go!";
-        else if (progress > 85) loaderStatus.textContent = "Almost there...";
-        else if (progress > 55) loaderStatus.textContent = "Loading interface...";
-        else if (progress > 25) loaderStatus.textContent = "Loading assets...";
-        else loaderStatus.textContent = "Connecting...";
+        if (progress >= 100) loaderStatus.textContent = `Here you go!`;
+        else if (progress > 85) loaderStatus.textContent = `Almost there... ${displayProgress}%`;
+        else if (progress > 55) loaderStatus.textContent = `Loading interface... ${displayProgress}%`;
+        else if (progress > 25) loaderStatus.textContent = `Loading assets... ${displayProgress}%`;
+        else loaderStatus.textContent = `Connecting... ${displayProgress}%`;
       }
     }
 
-    setInterval(() => { if (!isOnline) { offlineTextIdx++; updateLoaderStatus(); } }, 2000);
-
     const loaderInterval = setInterval(() => {
-      if (isOnline) {
-        if (!isLoaded && progress < 90) progress += (Math.random() * 8 + 2);
-        else if (isLoaded) progress = 100;
-        if (progress > 90 && !isLoaded) progress = 90;
+      if (!isLoaded || !isOnline) {
+        let increment = (95 - progress) * 0.05;
+        if (increment < 0.1) increment = 0.1;
+        progress += increment;
+        if (progress > 95) progress = 95;
+      } else {
+        progress = 100;
       }
       
       if (loaderProgress) loaderProgress.style.width = progress + '%';
       updateLoaderStatus();
 
-      if (progress >= 100 && isLoaded) {
+      if (progress >= 100 && isLoaded && isOnline) {
         clearInterval(loaderInterval);
         setTimeout(() => { // Wait 0.5 sec as requested
           if (preloader) { preloader.classList.add('hidden'); setTimeout(() => preloader.style.display = 'none', 600); }
         }, 500);
       }
-    }, 150);
+    }, 100);
 
     let isPreloaderFinished = false;
     const finishPreloader = () => {
@@ -1560,8 +1568,8 @@
     };
     
     window.addEventListener('load', finishPreloader);
-    // Safety fallback: forcefully finish loading after 3 seconds if external assets take too long
-    setTimeout(finishPreloader, 3000);
+    // Increased safety fallback to 15 seconds so slow connections have enough time to load
+    setTimeout(finishPreloader, 15000);
 
     window.addEventListener('offline', () => { isOnline = false; updateLoaderStatus(); });
     window.addEventListener('online', () => { 
