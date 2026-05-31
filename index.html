@@ -1744,7 +1744,7 @@
     const resumeBtn = document.getElementById('viewResumeBtn');
     resumeBtn.addEventListener('click', e => {
       e.preventDefault();
-      resumeBtn.blur(); // Drops focus immediately to prevent the button from getting stuck "up"
+      setTimeout(() => resumeBtn.blur(), 10); // Drops focus after browser default click event finishes
       if (resumeBtn.classList.contains('is-loading') || resumeBtn.classList.contains('is-error')) return;
       
       // Lock button dimensions using integer offsets to perfectly match adjacent buttons
@@ -1789,8 +1789,10 @@
             resumeBtn.style.padding = '';
             resumeBtn.classList.remove('is-error');
             
-            // Drop focus completely to prevent UI getting stuck
+            // Force browser to completely drop sticky focus and hover states
             resumeBtn.blur();
+            resumeBtn.style.pointerEvents = 'none';
+            setTimeout(() => resumeBtn.style.pointerEvents = '', 150);
           }, 300); // Wait 300ms for the fade-out animation to finish
         }, 3000);
       }, 1500);
