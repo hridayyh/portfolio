@@ -1676,7 +1676,10 @@
       setTimeout(() => {
         const hash = window.location.hash;
         if (hash) {
-          const target = document.querySelector(hash);
+          // Use getElementById instead of querySelector to prevent CSS selector injection
+          // and unhandled DOM exceptions if the user inputs a malformed hash in the URL.
+          const targetId = hash.substring(1);
+          const target = document.getElementById(targetId);
           if (target) target.scrollIntoView({ behavior: 'smooth' });
         } else {
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1741,6 +1744,7 @@
     const resumeBtn = document.getElementById('viewResumeBtn');
     resumeBtn.addEventListener('click', e => {
       e.preventDefault();
+      resumeBtn.blur(); // Drops focus immediately to prevent the button from getting stuck "up"
       if (resumeBtn.classList.contains('is-loading') || resumeBtn.classList.contains('is-error')) return;
       
       // Lock button dimensions using integer offsets to perfectly match adjacent buttons
