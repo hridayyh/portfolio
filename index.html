@@ -1180,7 +1180,19 @@
       40%, 80% { transform: translateX(4px); }
     }
     .btn-shake { animation: shakeError 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
-    .btn-error-icon { color: #e05252; position: absolute; right: 14px; font-size: 15px; }
+    .btn-error-icon { 
+      color: #e05252; position: absolute; right: 14px; font-size: 15px;
+      animation: iconPopIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .btn-error-icon.fade-out { animation: iconPopOut 0.3s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @keyframes iconPopIn {
+      from { opacity: 0; transform: scale(0.5); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes iconPopOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.5); }
+    }
     .btn-spinner { 
       display: inline-block;
       width: 12px; height: 12px;
