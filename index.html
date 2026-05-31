@@ -1789,10 +1789,11 @@
             resumeBtn.style.padding = '';
             resumeBtn.classList.remove('is-error');
             
-            // Force browser to completely drop sticky focus and hover states
+            // Ultimate fix: Force browser to completely drop sticky focus and phantom touch hover
             resumeBtn.blur();
-            resumeBtn.style.pointerEvents = 'none';
-            setTimeout(() => resumeBtn.style.pointerEvents = '', 150);
+            resumeBtn.style.display = 'none';
+            void resumeBtn.offsetHeight; // Force DOM reflow to wipe interaction cache
+            resumeBtn.style.display = '';
           }, 300); // Wait 300ms for the fade-out animation to finish
         }, 3000);
       }, 1500);
