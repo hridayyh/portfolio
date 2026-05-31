@@ -1744,7 +1744,6 @@
     const resumeBtn = document.getElementById('viewResumeBtn');
     resumeBtn.addEventListener('click', e => {
       e.preventDefault();
-      setTimeout(() => resumeBtn.blur(), 10); // Drops focus after browser default click event finishes
       if (resumeBtn.classList.contains('is-loading') || resumeBtn.classList.contains('is-error')) return;
       
       // Lock button dimensions using integer offsets to perfectly match adjacent buttons
@@ -1788,12 +1787,6 @@
             resumeBtn.style.height = '';
             resumeBtn.style.padding = '';
             resumeBtn.classList.remove('is-error');
-            
-            // Ultimate fix: Force browser to completely drop sticky focus and phantom touch hover
-            resumeBtn.blur();
-            resumeBtn.style.display = 'none';
-            void resumeBtn.offsetHeight; // Force DOM reflow to wipe interaction cache
-            resumeBtn.style.display = '';
           }, 300); // Wait 300ms for the fade-out animation to finish
         }, 3000);
       }, 1500);
