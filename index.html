@@ -382,8 +382,10 @@
     .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       padding: 14px 32px;
+      white-space: nowrap;
       font-family: var(--font-mono);
       font-size: 11px;
       letter-spacing: 2px;
@@ -418,6 +420,14 @@
       border: 1px solid var(--border-dim);
     }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+
+    .btn-secondary {
+      background: var(--bg3);
+      color: var(--text);
+      outline: none;
+    }
+    .btn-secondary:hover { color: var(--gold); transform: translateY(-2px); }
+    .btn-secondary:focus, .btn-secondary:active { outline: none; border: none; }
 
     .btn:disabled {
       opacity: 0.4;
@@ -1059,9 +1069,9 @@
     .toast {
       position: fixed;
       bottom: 30px; left: 30px;
-      background: var(--bg2);
+      background: var(--bg3);
       border: 1px solid var(--border);
-      border-left: 2px solid #e05252;
+      border-left: 4px solid #e05252;
       padding: 14px 18px;
       display: flex;
       justify-content: space-between;
@@ -1075,9 +1085,15 @@
       border-radius: 2px;
     }
     .toast.show-toast { transform: translateY(0); opacity: 1; }
-    .toast-content { display: flex; align-items: center; gap: 10px; }
-    .toast-content i { color: #e05252; font-size: 16px; }
-    .toast-content span { color: var(--text); font-size: 13px; font-family: var(--font-mono); }
+    .toast-content { display: flex; align-items: center; gap: 12px; }
+    .toast-content i { color: #e05252; font-size: 18px; }
+    .toast-content span { 
+      color: var(--text); 
+      font-size: 14px; 
+      font-family: var(--font-body);
+      font-weight: 500;
+      line-height: 1.5;
+    }
     .toast-close {
       position: relative;
       background: transparent;
@@ -1362,7 +1378,7 @@
 
       <div class="about-cta reveal reveal-delay-3">
           <a href="#contact" class="btn btn-primary"><span>Hire Me</span> <i class="bi bi-send-fill"></i></a>
-          <a href="Hriday_S_Kumar_Resume.pdf" id="viewResumeBtn" class="btn btn-outline"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
+          <a href="Hriday_S_Kumar_Resume.pdf" id="viewResumeBtn" class="btn btn-secondary"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
     </div>
   </section>
 
@@ -1717,8 +1733,10 @@
       
       // Lock button width to prevent resizing during text changes
       if (!resumeBtn.style.width) {
-        resumeBtn.style.width = resumeBtn.offsetWidth + 'px';
-        resumeBtn.style.justifyContent = 'center';
+        const rect = resumeBtn.getBoundingClientRect();
+        resumeBtn.style.width = rect.width + 'px';
+        resumeBtn.style.height = rect.height + 'px';
+        resumeBtn.style.padding = '0'; // Remove padding to let text center freely without clipping
       }
 
       // Save the initial HTML so we don't duplicate error icons on multiple clicks
