@@ -599,7 +599,6 @@ section { padding: 120px 7%; }
   margin-bottom: 28px;
   flex-wrap: wrap;
 }
-.exp-title-block {}
 .exp-role {
   font-family: var(--font-display);
   font-size: 28px;
