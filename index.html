@@ -1753,35 +1753,5 @@
       stTimeout = setTimeout(() => scrollTopBtn.classList.remove('show'), 1500);
     });
   </script>
-
-  <!-- Instagram In-App Browser Blocker / Auto-Escape -->
-  <script>
-    (function() {
-      const ua = navigator.userAgent || navigator.vendor || window.opera;
-      const isInstagram = (ua.indexOf('Instagram') > -1);
-
-      if (isInstagram) {
-        // Attempt automatic redirect to Chrome on Android
-        if (/android/i.test(ua)) {
-          const url = window.location.href.replace(/^https?:\/\//, '');
-          window.location.href = 'intent://' + url + '#Intent;scheme=https;package=com.android.chrome;end';
-        }
-
-        // Completely block the site from rendering and show instructions
-        document.addEventListener("DOMContentLoaded", function() {
-          document.body.innerHTML = `
-            <div style="position:fixed;inset:0;background:#09090b;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:'DM Sans',sans-serif;color:#f0ede8;">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
-              <h2 style="font-size:28px;margin-bottom:12px;font-weight:400;font-family:'Cormorant Garamond',serif;letter-spacing:-0.5px;">Open in Browser</h2>
-              <p style="color:#8a8580;font-size:15px;line-height:1.6;max-width:320px;margin-bottom:32px;">Instagram's in-app browser is not supported and limits the features of this portfolio.</p>
-              <div style="background:#141418;border:1px solid rgba(201,169,110,0.3);padding:24px;border-radius:6px;max-width:320px;">
-                <p style="font-size:15px;color:#f0ede8;margin:0;">Tap the <strong>3 dots (...)</strong> in the top right corner and select<br><br><span style="color:#c9a96e;">"Open in system browser"</span></p>
-              </div>
-            </div>
-          `;
-        });
-      }
-    })();
-  </script>
 </body>
 </html>
