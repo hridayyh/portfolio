@@ -426,7 +426,6 @@
       color: var(--text);
       outline: none;
     }
-    .btn-secondary:hover { color: var(--gold); transform: translateY(-2px); }
     .btn-secondary:focus, .btn-secondary:active { outline: none; border: none; }
 
     .btn:disabled {
@@ -1739,6 +1738,39 @@
       toastTimeout = setTimeout(() => toast.classList.remove('show-toast'), 2500);
     }
     toastClose.addEventListener('click', () => { toast.classList.remove('show-toast'); clearTimeout(toastTimeout); });
+
+    // Resume button loading animation
+    const resumeBtn = document.getElementById('viewResumeBtn');
+    if (resumeBtn) {
+      resumeBtn.addEventListener('click', e => {
+        e.preventDefault(); // Stop immediate navigation
+        if (resumeBtn.classList.contains('is-loading')) return; // Prevent double clicks
+
+        // Lock button dimensions to prevent resizing during text change
+        resumeBtn.style.width = resumeBtn.offsetWidth + 'px';
+        resumeBtn.style.height = resumeBtn.offsetHeight + 'px';
+        resumeBtn.style.padding = '0';
+
+        const originalHTML = resumeBtn.innerHTML;
+        const targetUrl = resumeBtn.href;
+
+        resumeBtn.classList.add('is-loading');
+        resumeBtn.innerHTML = '<span class="btn-spinner"></span> Fetching...';
+
+        setTimeout(() => {
+          resumeBtn.innerHTML = '<span class="btn-spinner"></span> Loading...';
+        }, 750);
+
+        setTimeout(() => {
+          resumeBtn.classList.remove('is-loading');
+          resumeBtn.innerHTML = originalHTML;
+          resumeBtn.style.width = '';
+          resumeBtn.style.height = '';
+          resumeBtn.style.padding = '';
+          window.open(targetUrl, '_blank', 'noopener,noreferrer'); // Open the resume securely
+        }, 1500);
+      });
+    }
 
     // Scroll top
     const scrollTopBtn = document.getElementById('scrollTopBtn');
