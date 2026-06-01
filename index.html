@@ -1390,7 +1390,7 @@
 
       <div class="about-cta reveal reveal-delay-3">
           <a href="#contact" class="btn btn-primary"><span>Hire Me</span> <i class="bi bi-send-fill"></i></a>
-          <a href="Hriday_S_Kumar_Resume.pdf" id="viewResumeBtn" class="btn btn-secondary"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
+          <a href="portfolio.cv.pdf" id="viewResumeBtn" class="btn btn-secondary" target="_blank" rel="noopener noreferrer"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
     </div>
   </section>
 
@@ -1739,58 +1739,6 @@
       toastTimeout = setTimeout(() => toast.classList.remove('show-toast'), 2500);
     }
     toastClose.addEventListener('click', () => { toast.classList.remove('show-toast'); clearTimeout(toastTimeout); });
-
-    // Resume button
-    const resumeBtn = document.getElementById('viewResumeBtn');
-    resumeBtn.addEventListener('click', e => {
-      e.preventDefault();
-      if (resumeBtn.classList.contains('is-loading') || resumeBtn.classList.contains('is-error')) return;
-      
-      // Lock button dimensions using integer offsets to perfectly match adjacent buttons
-      resumeBtn.style.width = resumeBtn.offsetWidth + 'px';
-      resumeBtn.style.height = resumeBtn.offsetHeight + 'px';
-      resumeBtn.style.padding = '0'; // Remove padding to let text center freely without clipping
-
-      // Save the initial HTML so we don't duplicate error icons on multiple clicks
-      if (!resumeBtn.dataset.originalHtml) {
-        resumeBtn.dataset.originalHtml = resumeBtn.innerHTML;
-      }
-      const originalHTML = resumeBtn.dataset.originalHtml;
-
-      resumeBtn.classList.add('is-loading');
-      resumeBtn.innerHTML = '<span class="btn-spinner"></span> Fetching...';
-      
-      setTimeout(() => {
-        if (resumeBtn.classList.contains('is-loading')) {
-          resumeBtn.innerHTML = '<span class="btn-spinner"></span> Loading...';
-        }
-      }, 750);
-
-      setTimeout(() => {
-        resumeBtn.innerHTML = originalHTML + ' <span class="btn-error-icon"><i class="bi bi-exclamation-circle-fill"></i></span>';
-        resumeBtn.classList.remove('is-loading');
-        resumeBtn.classList.add('btn-shake');
-        resumeBtn.classList.add('is-error');
-        
-        showToast('ERR_FILE_NOT_FOUND: Failed to locate resume document.');
-        
-        setTimeout(() => resumeBtn.classList.remove('btn-shake'), 400);
-
-        // Reset completely to initial state after toast disappears
-        setTimeout(() => {
-          const errIcon = resumeBtn.querySelector('.btn-error-icon');
-          if (errIcon) errIcon.classList.add('fade-out'); // Smoothly fade out the icon
-          
-          setTimeout(() => {
-            resumeBtn.innerHTML = originalHTML;
-            resumeBtn.style.width = '';
-            resumeBtn.style.height = '';
-            resumeBtn.style.padding = '';
-            resumeBtn.classList.remove('is-error');
-          }, 300); // Wait 300ms for the fade-out animation to finish
-        }, 3000);
-      }, 1500);
-    });
 
     // Scroll top
     const scrollTopBtn = document.getElementById('scrollTopBtn');
