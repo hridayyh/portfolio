@@ -995,7 +995,6 @@ section { padding: 120px 7%; }
   backdrop-filter: blur(8px);
   align-items: center;
   justify-content: center;
-  transform: translateZ(0); /* Forces GPU hardware acceleration to stop background blur lag */
 }
 .modal.show { display: flex; }
 .modal-box {
@@ -1163,8 +1162,6 @@ section { padding: 120px 7%; }
   overflow-x: hidden;
   overscroll-behavior: contain; /* Prevents background page scroll chaining which causes jumps */
   -webkit-overflow-scrolling: touch; /* Enables native smooth touch-scrolling on mobile/iOS */
-  transform: translateZ(0); /* Forces GPU hardware acceleration for the iframe container */
-  backface-visibility: hidden; /* Fixes edge/corner rendering flickers during scroll */
   scrollbar-width: thin;
   scrollbar-color: var(--text-dim) var(--bg3);
 }
