@@ -1059,10 +1059,10 @@ section { padding: 120px 7%; }
 
 /* ── Resume Modal Extensions ── */
 .resume-modal-box {
-  max-width: 900px;
+  max-width: 760px; /* Reduced width to match A4 PDF proportions & prevent massive gray bars */
   width: 90%;
-  height: 90vh; /* Locks modal height so native iframe controls stay properly aligned on screen */
-  max-height: 90vh;
+  height: 85vh; /* Reverted to slightly smaller size so it feels natural */
+  max-height: 85vh;
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -1172,6 +1172,7 @@ section { padding: 120px 7%; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center; /* Ensures loader text remains perfectly centered */
   transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 .pdf-loader.hidden { opacity: 0; visibility: hidden; }
@@ -1383,7 +1384,7 @@ footer {
   
   .resume-modal-box {
     width: 95%;
-    height: 90vh;
+    height: 85vh;
     margin-top: 0;
   }
   .resume-modal-header { padding: 14px 20px; }
@@ -1406,8 +1407,8 @@ footer {
   }
   .resume-modal-box {
     width: 95%;
-    height: 90vh;
-    max-height: 90vh;
+    height: 85vh;
+    max-height: 85vh;
     border-radius: 8px;
     border: 1px solid var(--border);
   }
