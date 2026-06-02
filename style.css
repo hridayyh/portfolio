@@ -1059,10 +1059,10 @@ section { padding: 120px 7%; }
 
 /* ── Resume Modal Extensions ── */
 .resume-modal-box {
-  max-width: 760px; /* Reduced width to match A4 PDF proportions & prevent massive gray bars */
+  max-width: 650px; /* Make the modal smaller and more compact */
   width: 90%;
-  height: 85vh; /* Reverted to slightly smaller size so it feels natural */
-  max-height: 85vh;
+  height: 80vh; /* Scaled down slightly for a better fit */
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -1383,8 +1383,8 @@ footer {
   .hero { padding: 120px 5% 80px; }
   
   .resume-modal-box {
-    width: 95%;
-    height: 85vh;
+    width: 90%; /* Creates better spacing on mobile to remain centered */
+    height: 75vh;
     margin-top: 0;
   }
   .resume-modal-header { padding: 14px 20px; }
@@ -1406,9 +1406,9 @@ footer {
     bottom: 20px;
   }
   .resume-modal-box {
-    width: 95%;
-    height: 85vh;
-    max-height: 85vh;
+    width: 90%; /* Fully centered with clean margins on small screens */
+    height: 75vh;
+    max-height: 75vh;
     border-radius: 8px;
     border: 1px solid var(--border);
   }

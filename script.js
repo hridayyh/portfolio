@@ -78,7 +78,7 @@ window.addEventListener('load', () => {
         loadPdfDocument();
       }
     }
-  }, 2000);
+  }, 500); // Fetch the PDF almost immediately after the main page loads
 });
 // Increased safety fallback to 15 seconds so slow connections have enough time to load
 setTimeout(finishPreloader, 15000);
@@ -314,27 +314,6 @@ const resumeBtn = document.getElementById('viewResumeBtn');
 if (resumeBtn) {
   resumeBtn.addEventListener('click', e => {
     e.preventDefault(); // Stop immediate navigation
-    if (resumeBtn.classList.contains('is-loading')) return; // Prevent double clicks
-
-    // Lock exact fractional button dimensions to prevent any layout shifts
-    const rect = resumeBtn.getBoundingClientRect();
-    resumeBtn.style.width = rect.width + 'px';
-    resumeBtn.style.height = rect.height + 'px';
-
-    const originalHTML = resumeBtn.innerHTML;
-
-    resumeBtn.classList.add('is-loading');
-    resumeBtn.innerHTML = '<span class="btn-spinner"></span> Fetching...';
-
-    setTimeout(() => {
-      resumeBtn.innerHTML = '<span class="btn-spinner"></span> Loading...';
-    }, 750);
-
-    setTimeout(() => {
-      resumeBtn.classList.remove('is-loading');
-      resumeBtn.innerHTML = originalHTML;
-      resumeBtn.style.width = '';
-      resumeBtn.style.height = '';
       
       const resumeModal = document.getElementById('resumeModal');
       if (resumeModal) {
@@ -347,7 +326,6 @@ if (resumeBtn) {
         resumeModal.classList.add('show');
         document.body.style.overflow = 'hidden'; // Prevent background scrolling
       }
-    }, 1500);
   });
 }
 
