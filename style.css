@@ -1081,6 +1081,9 @@ section { padding: 120px 7%; }
   padding: 16px 24px;
   border-bottom: 1px solid var(--border-dim);
   background: var(--bg3);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
 }
 .resume-modal-title {
   font-family: var(--font-display);
@@ -1158,8 +1161,10 @@ section { padding: 120px 7%; }
   display: block;
   overflow-y: auto; /* Shifts scrolling control to the custom modal container */
   overflow-x: hidden;
+  overscroll-behavior: contain; /* Prevents background page scroll chaining which causes jumps */
   -webkit-overflow-scrolling: touch; /* Enables native smooth touch-scrolling on mobile/iOS */
   transform: translateZ(0); /* Forces GPU hardware acceleration for the iframe container */
+  backface-visibility: hidden; /* Fixes edge/corner rendering flickers during scroll */
   scrollbar-width: thin;
   scrollbar-color: var(--text-dim) var(--bg3);
 }

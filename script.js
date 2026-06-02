@@ -69,6 +69,15 @@ window.addEventListener('load', () => {
   // Silently preload the PDF in the background so it's instantly available from browser cache
   setTimeout(() => {
     fetch('view.cv.pdf').catch(() => {});
+    
+    // Pre-initialize the iframe source to trigger browser native PDF loading
+    const resumeModal = document.getElementById('resumeModal');
+    if (resumeModal) {
+      const iframe = resumeModal.querySelector('.resume-iframe');
+      if (iframe && !iframe.getAttribute('src')) {
+        loadPdfDocument();
+      }
+    }
   }, 2000);
 });
 // Increased safety fallback to 15 seconds so slow connections have enough time to load
@@ -192,7 +201,8 @@ toastClose.addEventListener('click', () => { toast.classList.remove('show-toast'
 let pdfLoaderInterval;
 let pdfErrorTimeout;
 
-function loadPdfDocument() {
+function loadPdfDocument(e) {
+  const isRefresh = e instanceof Event && e.currentTarget && e.currentTarget.id === 'refreshPdfBtn';
   const resumeModal = document.getElementById('resumeModal');
   const iframe = resumeModal ? resumeModal.querySelector('.resume-iframe') : null;
   const pdfLoader = document.getElementById('pdfLoader');
@@ -229,11 +239,11 @@ function loadPdfDocument() {
 
   const isAndroid = /Android/i.test(navigator.userAgent);
   const isInAppBrowser = /Instagram|FBAV|FBAN/i.test(navigator.userAgent);
-  const cacheBuster = new Date().getTime();
   let targetSrc = '';
 
   if (isAndroid || isInAppBrowser) {
-    const absoluteUrl = new URL(`view.cv.pdf?t=${cacheBuster}`, window.location.href).href;
+    const cacheParam = isRefresh ? `?t=${new Date().getTime()}` : '';
+    const absoluteUrl = new URL(`view.cv.pdf${cacheParam}`, window.location.href).href;
     if (absoluteUrl.startsWith('http')) {
       targetSrc = `https://docs.google.com/gview?url=${encodeURIComponent(absoluteUrl)}&embedded=true`;
     } else {
@@ -267,12 +277,19 @@ function loadPdfDocument() {
     if (refreshPdfBtn) refreshPdfBtn.style.display = 'flex';
   }, 12000);
 
-  // Set src with cache buster to force hard reload on refresh attempts
+  // Set src natively without cache buster unless refreshing
   if (!isAndroid && !isInAppBrowser) {
     const base = targetSrc.split('#')[0];
     const hash = targetSrc.split('#')[1] || '';
     const isFile = window.location.protocol === 'file:';
-    iframe.src = isFile ? targetSrc : `${base}?t=${cacheBuster}#${hash}`;
+    
+    let finalSrc = base;
+    if (!isFile && isRefresh) {
+      finalSrc += `?t=${new Date().getTime()}`;
+    }
+    if (hash) finalSrc += `#${hash}`;
+    
+    iframe.src = finalSrc;
     
     // Native desktop browsers often block the iframe onload event for PDFs.
     // Since native loading is fast, we safely complete the bar after 2 seconds to prevent it hanging.
