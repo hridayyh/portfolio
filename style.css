@@ -1061,7 +1061,7 @@ section { padding: 120px 7%; }
 .resume-modal-box {
   max-width: 900px;
   width: 90%;
-  height: auto; /* Hugs the PDF tightly instead of forcing empty space */
+  height: 90vh; /* Locks modal height so native iframe controls stay properly aligned on screen */
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -1158,18 +1158,8 @@ section { padding: 120px 7%; }
   background: var(--bg2); /* Blends empty space with the modal theme, removing the white bar */
   position: relative;
   display: block;
-  overflow-y: auto; /* Shifts scrolling control to the custom modal container */
-  overflow-x: hidden;
-  overscroll-behavior: contain; /* Prevents background page scroll chaining which causes jumps */
-  -webkit-overflow-scrolling: touch; /* Enables native smooth touch-scrolling on mobile/iOS */
-  scrollbar-width: thin;
-  scrollbar-color: var(--text-dim) var(--bg3);
+  overflow: hidden; /* Returns scroll control to the native PDF iframe */
 }
-/* Custom thin scrollbar specifically for the modal body */
-.resume-modal-body::-webkit-scrollbar { width: 6px; }
-.resume-modal-body::-webkit-scrollbar-track { background: var(--bg3); border-radius: 4px; }
-.resume-modal-body::-webkit-scrollbar-thumb { background: var(--text-dim); border-radius: 4px; }
-.resume-modal-body::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
 /* PDF Loader Overlay */
 .pdf-loader {
@@ -1188,8 +1178,7 @@ section { padding: 120px 7%; }
 
 .resume-iframe {
   width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1.42; /* Perfectly wraps a 1-page A4 PDF to prevent empty space at the bottom */
+  height: 100%; /* Restores native fixed sizing for inner toolbar alignment */
   border: none;
   display: block;
 }
@@ -1394,7 +1383,7 @@ footer {
   
   .resume-modal-box {
     width: 95%;
-    height: auto;
+    height: 90vh;
     margin-top: 0;
   }
   .resume-modal-header { padding: 14px 20px; }
@@ -1417,7 +1406,7 @@ footer {
   }
   .resume-modal-box {
     width: 95%;
-    height: auto;
+    height: 90vh;
     max-height: 90vh;
     border-radius: 8px;
     border: 1px solid var(--border);
