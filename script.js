@@ -208,8 +208,79 @@ if (resumeBtn) {
       resumeBtn.innerHTML = originalHTML;
       resumeBtn.style.width = '';
       resumeBtn.style.height = '';
-      showToast("File not found.. please try later!!");
+      
+      const resumeModal = document.getElementById('resumeModal');
+      if (resumeModal) {
+        resumeModal.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      }
     }, 1500);
+  });
+}
+
+// Modal closing logic
+const resumeModal = document.getElementById('resumeModal');
+const closeResumeModal = document.getElementById('closeResumeModal');
+
+if (resumeModal && closeResumeModal) {
+  const closeModal = () => {
+    resumeModal.classList.remove('show');
+    document.body.style.overflow = '';
+  };
+  closeResumeModal.addEventListener('click', closeModal);
+  resumeModal.addEventListener('click', e => {
+    if (e.target === resumeModal) closeModal();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && resumeModal.classList.contains('show')) closeModal();
+  });
+}
+
+// Direct download for resume to prevent browser redirection
+const downloadModalBtn = document.querySelector('.resume-modal-download');
+if (downloadModalBtn) {
+  downloadModalBtn.addEventListener('click', async function(e) {
+    e.preventDefault();
+    
+    // Prevent multiple clicks while downloading
+    if (this.style.pointerEvents === 'none') return;
+    
+    const href = this.getAttribute('href');
+    const filename = this.getAttribute('download');
+    const originalHTML = this.innerHTML;
+    
+    // Show loading spinner in the download icon
+    this.style.pointerEvents = 'none';
+    this.innerHTML = '<i class="bi bi-arrow-repeat" style="animation: spin 1s linear infinite;"></i>';
+    
+    try {
+      const response = await fetch(href);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const tempLink = document.createElement('a');
+      tempLink.style.display = 'none';
+      tempLink.href = blobUrl;
+      tempLink.download = filename;
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      
+      setTimeout(() => {
+        document.body.removeChild(tempLink);
+        window.URL.revokeObjectURL(blobUrl);
+      }, 1000);
+    } catch (err) {
+      // Browsers block direct downloads from local files for security (file://).
+      // Instead of awkwardly redirecting you, we will use your Toast UI to explain why!
+      showToast("Direct download blocked locally. Please use Live Server!");
+      
+      // Opens securely in a new tab after showing the toast so the page doesn't break
+      setTimeout(() => window.open(href, '_blank'), 2000);
+    } finally {
+      this.style.pointerEvents = 'auto';
+      this.innerHTML = originalHTML;
+    }
   });
 }
 

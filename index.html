@@ -133,7 +133,7 @@
 
       <div class="about-cta reveal reveal-delay-3">
           <a href="#contact" class="btn btn-primary"><span>Hire Me</span> <i class="bi bi-send-fill"></i></a>
-          <a href="portfolio.cv.pdf" id="viewResumeBtn" class="btn btn-secondary" target="_blank" rel="noopener noreferrer"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
+          <a href="view.cv.pdf" id="viewResumeBtn" class="btn btn-secondary" target="_blank" rel="noopener noreferrer"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
     </div>
   </section>
 
@@ -271,6 +271,22 @@
       </div>
     </div>
   </section>
+
+  <!-- Resume Modal -->
+  <div id="resumeModal" class="modal">
+    <div class="modal-box resume-modal-box">
+      <div class="resume-modal-header">
+        <h3 class="resume-modal-title">Resume Preview</h3>
+        <div class="resume-modal-actions">
+          <a href="view.cv.pdf" download="Hriday_Resume.pdf" class="resume-modal-download" title="Download"><i class="bi bi-download"></i></a>
+          <button class="resume-modal-close" id="closeResumeModal" title="Close"><i class="bi bi-x-lg"></i></button>
+        </div>
+      </div>
+      <div class="resume-modal-body">
+        <iframe src="view.cv.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" class="resume-iframe" title="Hriday Resume"></iframe>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast -->
   <div id="toast" class="toast">
