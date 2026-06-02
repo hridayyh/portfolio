@@ -271,7 +271,19 @@ function loadPdfDocument() {
   if (!isAndroid && !isInAppBrowser) {
     const base = targetSrc.split('#')[0];
     const hash = targetSrc.split('#')[1] || '';
-    iframe.src = `${base}?t=${cacheBuster}#${hash}`;
+    const isFile = window.location.protocol === 'file:';
+    iframe.src = isFile ? targetSrc : `${base}?t=${cacheBuster}#${hash}`;
+    
+    // Native desktop browsers often block the iframe onload event for PDFs.
+    // Since native loading is fast, we safely complete the bar after 2 seconds to prevent it hanging.
+    setTimeout(() => {
+      if (iframe.getAttribute('data-error') !== 'true') {
+        clearInterval(pdfLoaderInterval);
+        clearTimeout(pdfErrorTimeout);
+        if (pdfLoaderProgress) pdfLoaderProgress.style.width = '100%';
+        setTimeout(() => { if (pdfLoader) pdfLoader.classList.add('hidden'); }, 400);
+      }
+    }, 2000);
   } else {
     iframe.src = targetSrc;
   }
@@ -309,54 +321,10 @@ if (resumeBtn) {
       
       const resumeModal = document.getElementById('resumeModal');
       if (resumeModal) {
-        // Handle PDF rendering dynamically to fix Instagram/Android popup redirect issues
         const iframe = resumeModal.querySelector('.resume-iframe');
-        const pdfLoader = document.getElementById('pdfLoader');
-        const pdfLoaderProgress = document.getElementById('pdfLoaderProgress');
-        
-        if (iframe && !iframe.getAttribute('src')) {
-          
-          // Show inner loader UI
-          if (pdfLoader) pdfLoader.classList.remove('hidden');
-          let simProgress = 0;
-          if (pdfLoaderProgress) pdfLoaderProgress.style.width = '0%';
-          
-          const pdfLoaderInterval = setInterval(() => {
-            simProgress += (90 - simProgress) * 0.1;
-            if (pdfLoaderProgress) pdfLoaderProgress.style.width = simProgress + '%';
-          }, 100);
-
-          iframe.onload = () => {
-            clearInterval(pdfLoaderInterval);
-            if (pdfLoaderProgress) pdfLoaderProgress.style.width = '100%';
-            setTimeout(() => { if (pdfLoader) pdfLoader.classList.add('hidden'); }, 400);
-          };
-          
-          // Fallback just in case iframe.onload fails to fire on some strict mobile browsers
-          setTimeout(() => {
-            clearInterval(pdfLoaderInterval);
-            if (pdfLoaderProgress) pdfLoaderProgress.style.width = '100%';
-            if (pdfLoader) pdfLoader.classList.add('hidden');
-          }, 8000);
-
-          const isAndroid = /Android/i.test(navigator.userAgent);
-          const isInAppBrowser = /Instagram|FBAV|FBAN/i.test(navigator.userAgent);
-          
-          if (isAndroid || isInAppBrowser) {
-            // Android WebViews cannot render PDFs natively. We use Google Docs Viewer to display it inline as HTML.
-            // Adding a cache-buster (?t=...) forces Google to fetch the freshly deployed Vercel file instead of showing an "Open" error.
-            const cacheBuster = new Date().getTime();
-            const absoluteUrl = new URL(`view.cv.pdf?t=${cacheBuster}`, window.location.href).href;
-            if (absoluteUrl.startsWith('http')) {
-              iframe.src = `https://docs.google.com/gview?url=${encodeURIComponent(absoluteUrl)}&embedded=true`;
-            } else {
-              iframe.src = iframe.getAttribute('data-src');
-            }
-          } else {
-            iframe.src = iframe.getAttribute('data-src');
-          }
-        } else if (pdfLoader) {
-          pdfLoader.classList.add('hidden'); // PDF was already loaded previously
+        // If iframe hasn't been loaded yet, or if it errored out previously, trigger fetch
+        if (iframe && (!iframe.getAttribute('src') || iframe.getAttribute('data-error') === 'true')) {
+          loadPdfDocument();
         }
 
         resumeModal.classList.add('show');
