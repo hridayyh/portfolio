@@ -211,6 +211,27 @@ if (resumeBtn) {
       
       const resumeModal = document.getElementById('resumeModal');
       if (resumeModal) {
+        // Handle PDF rendering dynamically to fix Instagram/Android popup redirect issues
+        const iframe = resumeModal.querySelector('.resume-iframe');
+        if (iframe && !iframe.getAttribute('src')) {
+          const isAndroid = /Android/i.test(navigator.userAgent);
+          const isInAppBrowser = /Instagram|FBAV|FBAN/i.test(navigator.userAgent);
+          
+          if (isAndroid || isInAppBrowser) {
+            // Android WebViews cannot render PDFs natively. We use Google Docs Viewer to display it inline as HTML.
+            // Adding a cache-buster (?t=...) forces Google to fetch the freshly deployed Vercel file instead of showing an "Open" error.
+            const cacheBuster = new Date().getTime();
+            const absoluteUrl = new URL(`view.cv.pdf?t=${cacheBuster}`, window.location.href).href;
+            if (absoluteUrl.startsWith('http')) {
+              iframe.src = `https://docs.google.com/gview?url=${encodeURIComponent(absoluteUrl)}&embedded=true`;
+            } else {
+              iframe.src = iframe.getAttribute('data-src');
+            }
+          } else {
+            iframe.src = iframe.getAttribute('data-src');
+          }
+        }
+
         resumeModal.classList.add('show');
         document.body.style.overflow = 'hidden'; // Prevent background scrolling
       }
