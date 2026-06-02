@@ -189,13 +189,12 @@ if (resumeBtn) {
     e.preventDefault(); // Stop immediate navigation
     if (resumeBtn.classList.contains('is-loading')) return; // Prevent double clicks
 
-    // Lock button dimensions to prevent resizing during text change
-    resumeBtn.style.width = resumeBtn.offsetWidth + 'px';
-    resumeBtn.style.height = resumeBtn.offsetHeight + 'px';
-    resumeBtn.style.padding = '0';
+    // Lock exact fractional button dimensions to prevent any layout shifts
+    const rect = resumeBtn.getBoundingClientRect();
+    resumeBtn.style.width = rect.width + 'px';
+    resumeBtn.style.height = rect.height + 'px';
 
     const originalHTML = resumeBtn.innerHTML;
-    const targetUrl = resumeBtn.href;
 
     resumeBtn.classList.add('is-loading');
     resumeBtn.innerHTML = '<span class="btn-spinner"></span> Fetching...';
@@ -209,8 +208,7 @@ if (resumeBtn) {
       resumeBtn.innerHTML = originalHTML;
       resumeBtn.style.width = '';
       resumeBtn.style.height = '';
-      resumeBtn.style.padding = '';
-      window.open(targetUrl, '_blank', 'noopener,noreferrer'); // Open the resume securely
+      showToast("File not found.. please try later!!");
     }, 1500);
   });
 }
