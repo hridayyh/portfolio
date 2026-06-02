@@ -1114,6 +1114,24 @@ section { padding: 120px 7%; }
   color: var(--gold);
   background: var(--gold-dim);
 }
+.resume-modal-refresh {
+  background: transparent;
+  border: none;
+  color: #e05252;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.resume-modal-refresh:hover {
+  color: #fff;
+  background: #e05252;
+}
 .resume-modal-close {
   background: transparent;
   border: none;

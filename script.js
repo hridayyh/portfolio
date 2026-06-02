@@ -188,6 +188,98 @@ function showToast(msg) {
 }
 toastClose.addEventListener('click', () => { toast.classList.remove('show-toast'); clearTimeout(toastTimeout); });
 
+// --- Resume PDF Loader Logic ---
+let pdfLoaderInterval;
+let pdfErrorTimeout;
+
+function loadPdfDocument() {
+  const resumeModal = document.getElementById('resumeModal');
+  const iframe = resumeModal ? resumeModal.querySelector('.resume-iframe') : null;
+  const pdfLoader = document.getElementById('pdfLoader');
+  const pdfLoaderProgress = document.getElementById('pdfLoaderProgress');
+  const loaderStatus = pdfLoader ? pdfLoader.querySelector('.loader-status') : null;
+  const downloadModalBtn = document.querySelector('.resume-modal-download');
+  const refreshPdfBtn = document.getElementById('refreshPdfBtn');
+
+  if (!iframe) return;
+
+  // Reset UI back to fetching state
+  iframe.removeAttribute('data-error');
+  if (pdfLoader) pdfLoader.classList.remove('hidden');
+  if (loaderStatus) {
+    loaderStatus.textContent = 'Loading Document...';
+    loaderStatus.style.color = 'var(--gold)';
+  }
+  if (pdfLoaderProgress) {
+    pdfLoaderProgress.style.width = '0%';
+    pdfLoaderProgress.style.background = 'var(--gold)';
+  }
+  if (downloadModalBtn) downloadModalBtn.style.display = 'flex';
+  if (refreshPdfBtn) refreshPdfBtn.style.display = 'none';
+
+  let simProgress = 0;
+  clearInterval(pdfLoaderInterval);
+  clearTimeout(pdfErrorTimeout);
+
+  // Asymptotic progress bar (slows down near 90% and waits for actual load)
+  pdfLoaderInterval = setInterval(() => {
+    simProgress += (90 - simProgress) * 0.05;
+    if (pdfLoaderProgress) pdfLoaderProgress.style.width = simProgress + '%';
+  }, 100);
+
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isInAppBrowser = /Instagram|FBAV|FBAN/i.test(navigator.userAgent);
+  const cacheBuster = new Date().getTime();
+  let targetSrc = '';
+
+  if (isAndroid || isInAppBrowser) {
+    const absoluteUrl = new URL(`view.cv.pdf?t=${cacheBuster}`, window.location.href).href;
+    if (absoluteUrl.startsWith('http')) {
+      targetSrc = `https://docs.google.com/gview?url=${encodeURIComponent(absoluteUrl)}&embedded=true`;
+    } else {
+      targetSrc = iframe.getAttribute('data-src');
+    }
+  } else {
+    targetSrc = iframe.getAttribute('data-src');
+  }
+
+  // Success handler: Only fires when the document actually finishes rendering bytes
+  iframe.onload = () => {
+    clearInterval(pdfLoaderInterval);
+    clearTimeout(pdfErrorTimeout);
+    if (pdfLoaderProgress) pdfLoaderProgress.style.width = '100%';
+    setTimeout(() => { if (pdfLoader) pdfLoader.classList.add('hidden'); }, 400);
+  };
+
+  // Error handler: If 12 seconds pass without a successful onload event
+  pdfErrorTimeout = setTimeout(() => {
+    clearInterval(pdfLoaderInterval);
+    iframe.setAttribute('data-error', 'true');
+    if (loaderStatus) {
+      loaderStatus.textContent = 'Failed to load document. Please refresh and try again.';
+      loaderStatus.style.color = '#e05252';
+    }
+    if (pdfLoaderProgress) {
+      pdfLoaderProgress.style.background = '#e05252';
+    }
+    // Swap Download for Refresh
+    if (downloadModalBtn) downloadModalBtn.style.display = 'none';
+    if (refreshPdfBtn) refreshPdfBtn.style.display = 'flex';
+  }, 12000);
+
+  // Set src with cache buster to force hard reload on refresh attempts
+  if (!isAndroid && !isInAppBrowser) {
+    const base = targetSrc.split('#')[0];
+    const hash = targetSrc.split('#')[1] || '';
+    iframe.src = `${base}?t=${cacheBuster}#${hash}`;
+  } else {
+    iframe.src = targetSrc;
+  }
+}
+
+const refreshPdfBtn = document.getElementById('refreshPdfBtn');
+if (refreshPdfBtn) refreshPdfBtn.addEventListener('click', loadPdfDocument);
+
 // Resume button loading animation
 const resumeBtn = document.getElementById('viewResumeBtn');
 if (resumeBtn) {
