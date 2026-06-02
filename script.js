@@ -64,7 +64,13 @@ const finishPreloader = () => {
   isLoaded = true;
 };
 
-window.addEventListener('load', finishPreloader);
+window.addEventListener('load', () => {
+  finishPreloader();
+  // Silently preload the PDF in the background so it's instantly available from browser cache
+  setTimeout(() => {
+    fetch('view.cv.pdf').catch(() => {});
+  }, 2000);
+});
 // Increased safety fallback to 15 seconds so slow connections have enough time to load
 setTimeout(finishPreloader, 15000);
 
@@ -213,7 +219,34 @@ if (resumeBtn) {
       if (resumeModal) {
         // Handle PDF rendering dynamically to fix Instagram/Android popup redirect issues
         const iframe = resumeModal.querySelector('.resume-iframe');
+        const pdfLoader = document.getElementById('pdfLoader');
+        const pdfLoaderProgress = document.getElementById('pdfLoaderProgress');
+        
         if (iframe && !iframe.getAttribute('src')) {
+          
+          // Show inner loader UI
+          if (pdfLoader) pdfLoader.classList.remove('hidden');
+          let simProgress = 0;
+          if (pdfLoaderProgress) pdfLoaderProgress.style.width = '0%';
+          
+          const pdfLoaderInterval = setInterval(() => {
+            simProgress += (90 - simProgress) * 0.1;
+            if (pdfLoaderProgress) pdfLoaderProgress.style.width = simProgress + '%';
+          }, 100);
+
+          iframe.onload = () => {
+            clearInterval(pdfLoaderInterval);
+            if (pdfLoaderProgress) pdfLoaderProgress.style.width = '100%';
+            setTimeout(() => { if (pdfLoader) pdfLoader.classList.add('hidden'); }, 400);
+          };
+          
+          // Fallback just in case iframe.onload fails to fire on some strict mobile browsers
+          setTimeout(() => {
+            clearInterval(pdfLoaderInterval);
+            if (pdfLoaderProgress) pdfLoaderProgress.style.width = '100%';
+            if (pdfLoader) pdfLoader.classList.add('hidden');
+          }, 8000);
+
           const isAndroid = /Android/i.test(navigator.userAgent);
           const isInAppBrowser = /Instagram|FBAV|FBAN/i.test(navigator.userAgent);
           
@@ -230,6 +263,8 @@ if (resumeBtn) {
           } else {
             iframe.src = iframe.getAttribute('data-src');
           }
+        } else if (pdfLoader) {
+          pdfLoader.classList.add('hidden'); // PDF was already loaded previously
         }
 
         resumeModal.classList.add('show');
