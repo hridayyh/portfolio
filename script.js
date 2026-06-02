@@ -66,19 +66,6 @@ const finishPreloader = () => {
 
 window.addEventListener('load', () => {
   finishPreloader();
-  // Silently preload the PDF in the background so it's instantly available from browser cache
-  setTimeout(() => {
-    fetch('view.cv.pdf').catch(() => {});
-    
-    // Pre-initialize the iframe source to trigger browser native PDF loading
-    const resumeModal = document.getElementById('resumeModal');
-    if (resumeModal) {
-      const iframe = resumeModal.querySelector('.resume-iframe');
-      if (iframe && !iframe.getAttribute('src')) {
-        loadPdfDocument();
-      }
-    }
-  }, 500); // Fetch the PDF almost immediately after the main page loads
 });
 // Increased safety fallback to 15 seconds so slow connections have enough time to load
 setTimeout(finishPreloader, 15000);
@@ -199,9 +186,10 @@ toastClose.addEventListener('click', () => { toast.classList.remove('show-toast'
 
 // --- Resume PDF Loader Logic ---
 let pdfLoaderInterval;
+let pdfPhaseTimeout;
 let pdfErrorTimeout;
 
-function loadPdfDocument(e) {
+function loadPdfDocument(e, attempt = 1) {
   const isRefresh = e instanceof Event && e.currentTarget && e.currentTarget.id === 'refreshPdfBtn';
   const resumeModal = document.getElementById('resumeModal');
   const iframe = resumeModal ? resumeModal.querySelector('.resume-iframe') : null;
@@ -213,36 +201,39 @@ function loadPdfDocument(e) {
 
   if (!iframe) return;
 
-  // Reset UI back to fetching state
-  iframe.removeAttribute('data-error');
-  if (pdfLoader) pdfLoader.classList.remove('hidden');
-  if (loaderStatus) {
-    loaderStatus.textContent = 'Loading Document...';
-    loaderStatus.style.color = 'var(--gold)';
-  }
-  if (pdfLoaderProgress) {
-    pdfLoaderProgress.style.width = '0%';
-    pdfLoaderProgress.style.background = 'var(--gold)';
-  }
-  if (downloadModalBtn) downloadModalBtn.style.display = 'flex';
-  if (refreshPdfBtn) refreshPdfBtn.style.display = 'none';
+  // Only reset UI completely if it's the first attempt or a manual user refresh
+  if (attempt === 1 || isRefresh) {
+    iframe.removeAttribute('data-error');
+    if (pdfLoader) pdfLoader.classList.remove('hidden');
+    if (loaderStatus) {
+      loaderStatus.textContent = attempt === 1 ? 'Loading Document...' : 'Refreshing Document...';
+      loaderStatus.style.color = 'var(--gold)';
+    }
+    if (pdfLoaderProgress) {
+      pdfLoaderProgress.style.width = '0%';
+      pdfLoaderProgress.style.background = 'var(--gold)';
+    }
+    if (downloadModalBtn) downloadModalBtn.style.display = 'flex';
+    if (refreshPdfBtn) refreshPdfBtn.style.display = 'none';
 
-  let simProgress = 0;
-  clearInterval(pdfLoaderInterval);
+    clearInterval(pdfLoaderInterval);
+    let simProgress = 0;
+    pdfLoaderInterval = setInterval(() => {
+      simProgress += (90 - simProgress) * 0.05;
+      if (pdfLoaderProgress) pdfLoaderProgress.style.width = simProgress + '%';
+    }, 100);
+  }
+
+  clearTimeout(pdfPhaseTimeout);
   clearTimeout(pdfErrorTimeout);
-
-  // Asymptotic progress bar (slows down near 90% and waits for actual load)
-  pdfLoaderInterval = setInterval(() => {
-    simProgress += (90 - simProgress) * 0.05;
-    if (pdfLoaderProgress) pdfLoaderProgress.style.width = simProgress + '%';
-  }, 100);
 
   const isAndroid = /Android/i.test(navigator.userAgent);
   const isInAppBrowser = /Instagram|FBAV|FBAN/i.test(navigator.userAgent);
   let targetSrc = '';
+  const timestamp = new Date().getTime();
 
   if (isAndroid || isInAppBrowser) {
-    const cacheParam = isRefresh ? `?t=${new Date().getTime()}` : '';
+    const cacheParam = (isRefresh || attempt > 1) ? `?t=${timestamp}` : '';
     const absoluteUrl = new URL(`view.cv.pdf${cacheParam}`, window.location.href).href;
     if (absoluteUrl.startsWith('http')) {
       targetSrc = `https://docs.google.com/gview?url=${encodeURIComponent(absoluteUrl)}&embedded=true`;
@@ -250,59 +241,76 @@ function loadPdfDocument(e) {
       targetSrc = iframe.getAttribute('data-src');
     }
   } else {
-    targetSrc = iframe.getAttribute('data-src');
+    const baseSrc = iframe.getAttribute('data-src');
+    const base = baseSrc.split('#')[0];
+    const hash = baseSrc.split('#')[1] || '';
+    const isFile = window.location.protocol === 'file:';
+    
+    let finalSrc = base;
+    if (!isFile && (isRefresh || attempt > 1)) {
+      finalSrc += `?t=${timestamp}`;
+    }
+    if (hash) finalSrc += `#${hash}`;
+    
+    targetSrc = finalSrc;
   }
 
-  // Success handler: Only fires when the document actually finishes rendering bytes
-  iframe.onload = () => {
+  const finishLoading = () => {
     clearInterval(pdfLoaderInterval);
+    clearTimeout(pdfPhaseTimeout);
     clearTimeout(pdfErrorTimeout);
+    iframe.removeAttribute('data-error');
     if (pdfLoaderProgress) pdfLoaderProgress.style.width = '100%';
     setTimeout(() => { if (pdfLoader) pdfLoader.classList.add('hidden'); }, 400);
   };
 
-  // Error handler: If 12 seconds pass without a successful onload event
-  pdfErrorTimeout = setTimeout(() => {
-    clearInterval(pdfLoaderInterval);
-    iframe.setAttribute('data-error', 'true');
-    if (loaderStatus) {
-      loaderStatus.textContent = 'Failed to load document. Please refresh and try again.';
-      loaderStatus.style.color = '#e05252';
-    }
-    if (pdfLoaderProgress) {
-      pdfLoaderProgress.style.background = '#e05252';
-    }
-    // Swap Download for Refresh
-    if (downloadModalBtn) downloadModalBtn.style.display = 'none';
-    if (refreshPdfBtn) refreshPdfBtn.style.display = 'flex';
-  }, 12000);
+  // Success handler: Only fires when the document actually finishes rendering bytes
+  iframe.onload = finishLoading;
+  
+  // Assign src to trigger load
+  iframe.src = targetSrc;
 
-  // Set src natively without cache buster unless refreshing
+  // Timeout routing based on attempt level
+  if (attempt === 1 && !isRefresh) {
+    // Phase 1: Give it 3.5s before attempting an auto-reload optimization
+    pdfPhaseTimeout = setTimeout(() => {
+      if (loaderStatus) {
+        loaderStatus.textContent = 'Optimizing connection... Auto-reloading...';
+      }
+      loadPdfDocument(e, 2);
+    }, 3500);
+  } else {
+    // Phase 2: Post-reload or Manual Refresh
+    pdfPhaseTimeout = setTimeout(() => {
+      if (loaderStatus) {
+        loaderStatus.textContent = 'Sorry for interrupting, it is taking longer than usual...';
+      }
+      
+      // Phase 3: Final error timeout if still not loaded
+      pdfErrorTimeout = setTimeout(() => {
+        clearInterval(pdfLoaderInterval);
+        iframe.setAttribute('data-error', 'true');
+        if (loaderStatus) {
+          loaderStatus.textContent = 'Failed to load document. Please refresh and try again.';
+          loaderStatus.style.color = '#e05252';
+        }
+        if (pdfLoaderProgress) {
+          pdfLoaderProgress.style.background = '#e05252';
+        }
+        if (downloadModalBtn) downloadModalBtn.style.display = 'none';
+        if (refreshPdfBtn) refreshPdfBtn.style.display = 'flex';
+      }, 7000);
+    }, 4000);
+  }
+
+  // Special Native Desktop bypass: since native browsers usually don't fire reliable onloads 
+  // or show their own inner loading UI, we bypass our custom loader early to hand off to native UI
   if (!isAndroid && !isInAppBrowser) {
-    const base = targetSrc.split('#')[0];
-    const hash = targetSrc.split('#')[1] || '';
-    const isFile = window.location.protocol === 'file:';
-    
-    let finalSrc = base;
-    if (!isFile && isRefresh) {
-      finalSrc += `?t=${new Date().getTime()}`;
-    }
-    if (hash) finalSrc += `#${hash}`;
-    
-    iframe.src = finalSrc;
-    
-    // Native desktop browsers often block the iframe onload event for PDFs.
-    // Since native loading is fast, we safely complete the bar after 2 seconds to prevent it hanging.
     setTimeout(() => {
       if (iframe.getAttribute('data-error') !== 'true') {
-        clearInterval(pdfLoaderInterval);
-        clearTimeout(pdfErrorTimeout);
-        if (pdfLoaderProgress) pdfLoaderProgress.style.width = '100%';
-        setTimeout(() => { if (pdfLoader) pdfLoader.classList.add('hidden'); }, 400);
+         finishLoading();
       }
-    }, 2000);
-  } else {
-    iframe.src = targetSrc;
+    }, 2500);
   }
 }
 
