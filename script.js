@@ -271,12 +271,18 @@ if (downloadModalBtn) {
         window.URL.revokeObjectURL(blobUrl);
       }, 1000);
     } catch (err) {
-      // Browsers block direct downloads from local files for security (file://).
-      // Instead of awkwardly redirecting you, we will use your Toast UI to explain why!
-      showToast("Direct download blocked locally. Please use Live Server!");
-      
-      // Opens securely in a new tab after showing the toast so the page doesn't break
-      setTimeout(() => window.open(href, '_blank'), 2000);
+      // Fallback if fetch is blocked (e.g., local file:// testing)
+      const fallbackLink = document.createElement('a');
+      fallbackLink.style.display = 'none';
+      fallbackLink.href = href;
+      fallbackLink.download = filename || 'Hriday_Resume.pdf';
+      fallbackLink.target = '_blank'; // Prevents redirecting your portfolio page
+      fallbackLink.rel = 'noopener noreferrer'; // Security best practice for _blank links
+      document.body.appendChild(fallbackLink);
+      fallbackLink.click();
+      setTimeout(() => {
+        document.body.removeChild(fallbackLink);
+      }, 1000);
     } finally {
       this.style.pointerEvents = 'auto';
       this.innerHTML = originalHTML;
