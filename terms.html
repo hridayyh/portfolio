@@ -78,27 +78,27 @@
       
       <div class="project-modal-grid">
         <div class="form-field">
-          <input type="text" id="projName" placeholder=" " required>
+          <input type="text" id="projName" placeholder=" " required maxlength="50">
           <label for="projName">Your Name *</label>
         </div>
         <div class="form-field">
-          <input type="email" id="projEmail" placeholder=" " required>
+          <input type="email" id="projEmail" placeholder=" " required maxlength="100">
           <label for="projEmail">Email Address *</label>
         </div>
         <div class="form-field">
-          <input type="text" id="projCollege" placeholder=" ">
+          <input type="text" id="projCollege" placeholder=" " maxlength="100">
           <label for="projCollege">College Name</label>
         </div>
         <div class="form-field">
-          <input type="text" id="projCourse" placeholder=" " required>
+          <input type="text" id="projCourse" placeholder=" " required maxlength="100">
           <label for="projCourse">Course / Degree *</label>
         </div>
         <div class="form-field project-modal-full">
-          <input type="text" id="projTitle" placeholder=" " required>
+          <input type="text" id="projTitle" placeholder=" " required maxlength="100">
           <label for="projTitle">Project Title *</label>
         </div>
         <div class="form-field project-modal-full">
-          <textarea id="projTech" placeholder=" " rows="2" required></textarea>
+          <textarea id="projTech" placeholder=" " rows="2" required maxlength="200"></textarea>
           <label for="projTech">Technologies (e.g., MERN, React) *</label>
         </div>
       </div>
@@ -222,7 +222,7 @@
       projCollege: /^.{0,100}$/, // Optional
       projCourse: /^.{2,100}$/, // Min 2 chars
       projTitle: /^.{2,100}$/,
-      projTech: /^.{2,200}$/
+          projTech: /^[\s\S]{2,200}$/ // [\s\S] safely allows multi-line text (Enter key)
     };
 
     const validateInput = (input) => {
@@ -386,19 +386,29 @@
                   doc.text(`Generated on ${new Date().toLocaleString()}`, 20, 280);
 
                   const fileName = `${pName.replace(/\s+/g, '_')}_Project_Details.pdf`;
+                  const blob = doc.output('blob');
+                  const blobUrl = URL.createObjectURL(blob);
+                  
+                  const manualBtn = document.getElementById('manualDownloadBtn');
+                  if (manualBtn) {
+                    manualBtn.href = blobUrl;
+                    manualBtn.download = fileName;
+                    manualBtn.target = '_blank';
+                    manualBtn.rel = 'noopener noreferrer';
+                  }
+
                   const isInAppBrowser = /Instagram|FBAV|FBAN|LinkedIn/i.test(navigator.userAgent);
                   
                   if (isInAppBrowser) {
-                    // Instagram strips download attributes, so we feed it the raw data URI to render natively
-                    const pdfDataUri = doc.output('datauristring');
                     const link = document.createElement('a');
-                    link.href = pdfDataUri;
+                    link.style.display = 'none';
+                    link.href = blobUrl;
                     link.download = fileName;
                     link.target = '_blank';
                     link.rel = 'noopener noreferrer';
                     document.body.appendChild(link);
                     link.click();
-                    document.body.removeChild(link);
+                    setTimeout(() => document.body.removeChild(link), 1000);
                   } else {
                     doc.save(fileName);
                   }
@@ -413,13 +423,15 @@
                 const postSubmitModal = document.getElementById('postSubmitModal');
                 postSubmitModal.classList.add('show');
                 
-                const finishRedirect = () => {
+                document.getElementById('btnGoToContact').addEventListener('click', () => {
                   postSubmitModal.classList.remove('show');
                   window.location.href = 'index.html#lets-connect';
-                };
+                });
 
-                document.getElementById('closePostSubmitModal').addEventListener('click', finishRedirect);
-                document.getElementById('btnGoToContact').addEventListener('click', finishRedirect);
+                document.getElementById('closePostSubmitModal').addEventListener('click', () => {
+                  postSubmitModal.classList.remove('show');
+                  window.location.href = 'index.html#home';
+                });
               }, 1500); // Allow 1.5s for the "Downloading PDF..." message
             }, 1200); // Allow 1.2s for the "Form submitted successfully!" message
           }
