@@ -356,45 +356,6 @@ header.scrolled .navbar { padding: 18px 7%; }
   letter-spacing: 1px;
   animation: fadeUp 0.8s 0.2s ease both;
 }
-.hero-freelance {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 16px;
-  animation: fadeUp 0.8s 0.25s ease both;
-  flex-wrap: wrap;
-}
-.hero-freelance-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--gold);
-  border: 1px solid var(--border);
-  background: rgba(201, 169, 110, 0.05);
-  padding: 3px 10px;
-  border-radius: 50px;
-}
-.hero-freelance-text {
-  font-size: clamp(10px, 3.5vw, 14px);
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-.hero-freelance-text a {
-  color: var(--gold);
-  text-decoration: none;
-  border-bottom: 1px solid var(--gold);
-  transition: 0.3s;
-  padding-bottom: 1px;
-  margin-left: 2px;
-}
-.hero-freelance-text a:hover {
-  color: var(--gold-light);
-  border-bottom-color: var(--gold-light);
-}
 .hero-desc {
   max-width: 520px;
   color: var(--text-muted);
@@ -1175,35 +1136,6 @@ section { padding: 120px 7%; }
   border-bottom-color: var(--gold);
 }
 
-.confirm-modal-box {
-  max-width: 350px;
-  padding: 36px 28px;
-}
-.confirm-modal-box .modal-icon-wrap {
-  width: 52px; height: 52px;
-  font-size: 22px;
-  margin-bottom: 16px;
-}
-.confirm-modal-box h3 {
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-.confirm-modal-box p {
-  font-size: 13.5px;
-  margin-bottom: 0;
-}
-.confirm-modal-actions {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-  margin-top: 24px;
-}
-.confirm-modal-actions .btn {
-  flex: 1;
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
 /* ── Project Details Modal (Terms Page) ── */
 .project-modal-box {
   max-width: 580px;
@@ -1716,16 +1648,6 @@ html.light-theme .terms-header.scrolled {
   }
   .resume-modal-header { padding: 12px 16px; margin-top: 0; }
   .resume-modal-title { font-size: 18px; }
-
-  .confirm-modal-actions {
-    flex-direction: row;
-    gap: 12px;
-  }
-  .confirm-modal-actions .btn {
-    padding: 12px 10px;
-    font-size: 10px;
-    letter-spacing: 1px;
-  }
 
   .project-modal-box { padding: 28px 20px; }
 }
