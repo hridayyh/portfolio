@@ -79,7 +79,7 @@ body::before {
 }
 
 /* ── Preloader ── */
-#preloader {
+#preloader, .fullscreen-loader {
   position: fixed;
   inset: 0;
   background: var(--bg);
@@ -91,7 +91,7 @@ body::before {
   gap: 20px;
   transition: opacity 0.6s ease, visibility 0.6s ease;
 }
-#preloader.hidden { opacity: 0; visibility: hidden; }
+#preloader.hidden, .fullscreen-loader.hidden { opacity: 0; visibility: hidden; }
 .loader-content {
   display: flex;
   flex-direction: column;
@@ -1014,6 +1014,20 @@ section { padding: 120px 7%; }
 .form-field input::placeholder,
 .form-field textarea::placeholder { color: transparent; }
 
+.validation-icon {
+  position: absolute;
+  right: 0;
+  top: 14px;
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+.form-field.valid .validation-icon { opacity: 1; color: #34d399; }
+.form-field.invalid .validation-icon { opacity: 1; color: #e05252; }
+.form-field.valid input, .form-field.valid textarea { border-bottom-color: #34d399 !important; }
+.form-field.invalid input, .form-field.invalid textarea { border-bottom-color: #e05252 !important; }
+
 .contact-connect-box {
   display: flex;
   flex-direction: column;
@@ -1160,6 +1174,93 @@ section { padding: 120px 7%; }
 }
 .terms-text a:hover {
   border-bottom-color: var(--gold);
+}
+
+.confirm-modal-box {
+  max-width: 350px;
+  padding: 36px 28px;
+}
+.confirm-modal-box .modal-icon-wrap {
+  width: 52px; height: 52px;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+.confirm-modal-box h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+.confirm-modal-box p {
+  font-size: 13.5px;
+  margin-bottom: 0;
+}
+.confirm-modal-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 24px;
+}
+.confirm-modal-actions .btn {
+  flex: 1;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* ── Project Details Modal (Terms Page) ── */
+.project-modal-box {
+  max-width: 580px;
+  padding: 40px;
+  text-align: left;
+}
+.project-modal-box h3 {
+  text-align: left;
+  margin-bottom: 24px;
+}
+.project-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
+}
+.project-modal-full {
+  grid-column: 1 / -1;
+}
+.project-modal-box .form-field {
+  margin-bottom: 16px;
+}
+.project-modal-box .form-field input,
+.project-modal-box .form-field textarea {
+  padding: 14px 28px 8px 0; /* Tighter padding for modal fit, room for validation icon */
+}
+.project-modal-box .form-field label {
+  top: 14px;
+}
+
+/* ── Project Details Modal (Terms Page) ── */
+.project-modal-box {
+  max-width: 580px;
+  padding: 40px;
+  text-align: left;
+}
+.project-modal-box h3 {
+  text-align: left;
+  margin-bottom: 24px;
+}
+.project-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
+}
+.project-modal-full {
+  grid-column: 1 / -1;
+}
+.project-modal-box .form-field {
+  margin-bottom: 16px;
+}
+.project-modal-box .form-field input,
+.project-modal-box .form-field textarea {
+  padding: 14px 0 8px; /* Slightly tighter padding for modal fit */
+}
+.project-modal-box .form-field label {
+  top: 14px;
 }
 
 /* ── Resume Modal Extensions ── */
@@ -1429,21 +1530,100 @@ footer {
   animation: spin 0.8s linear infinite;
 }
 
-.btn-progress-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  background: rgba(9, 9, 11, 0.4); /* Dark semi-transparent color for gold button */
-  width: 0%;
-  animation: btnProgressAnim 2s linear forwards;
+/* ── Terms Page ── */
+.terms-page-wrap {
+  min-height: 100vh;
+  padding: 120px 7% 120px;
+  max-width: 900px;
+  margin: 0 auto;
+  animation: fadeUp 0.8s ease both;
 }
-@keyframes btnProgressAnim {
-  to { width: 100%; }
+.terms-header {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  z-index: 1000;
+  transition: background 0.15s ease, backdrop-filter 0.15s ease, -webkit-backdrop-filter 0.15s ease, border-bottom-color 0.15s ease;
+  border-bottom: 1px solid transparent;
 }
+.terms-header.scrolled {
+  background: rgba(9, 9, 11, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom-color: var(--border);
+}
+html.light-theme .terms-header.scrolled {
+  background: rgba(246, 243, 239, 0.88);
+}
+.terms-header .navbar {
+  padding: 28px 7%;
+  transition: padding 0.4s ease;
+}
+.terms-header .navbar::after {
+  content: '';
+  height: 42px; /* Perfectly matches the height of the main site logo */
+  width: 0;
+  display: block;
+}
+.terms-header.scrolled .navbar {
+  padding: 18px 7%;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: var(--transition);
+}
+.back-link:hover { color: var(--gold); transform: translateX(-4px); }
+.terms-content {
+}
+.terms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+.term-item h3 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.term-item h3::before {
+  content: '';
+  display: block;
+  width: 24px; height: 1px;
+  background: var(--gold);
+}
+.term-item p {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.9;
+  text-align: left;
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+.term-item strong { color: var(--text); font-weight: 500; }
 
-.maintenance-text {
-  font-size: clamp(8px, 2.8vw, 11px);
+.terms-acceptance {
+  margin-top: 48px;
+  padding-top: 36px;
+  border-top: 1px solid var(--border-dim);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
 }
 
 /* ── Responsive ── */
@@ -1459,8 +1639,9 @@ footer {
 
 @media (max-width: 768px) {
   section { padding: 80px 5%; }
-  .navbar { padding: 20px 5%; }
-  header.scrolled .navbar { padding: 14px 5%; }
+  .navbar, .terms-header .navbar { padding: 20px 5%; }
+  header.scrolled .navbar,
+  .terms-header.scrolled .navbar { padding: 14px 5%; }
 
   .menu-btn { display: block; }
   .nav-links {
@@ -1536,6 +1717,18 @@ footer {
   }
   .resume-modal-header { padding: 12px 16px; margin-top: 0; }
   .resume-modal-title { font-size: 18px; }
+
+  .confirm-modal-actions {
+    flex-direction: row;
+    gap: 12px;
+  }
+  .confirm-modal-actions .btn {
+    padding: 12px 10px;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .project-modal-box { padding: 28px 20px; }
 }
 
 /* Light theme adjustments */

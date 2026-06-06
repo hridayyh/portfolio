@@ -2,7 +2,9 @@ if (history.scrollRestoration) {
   history.scrollRestoration = 'manual';
 }
 window.scrollTo(0, 0);
-if (window.location.hash) {
+
+const initialHash = window.location.hash;
+if (initialHash) {
   window.history.replaceState(null, null, window.location.pathname);
 }
 
@@ -66,6 +68,10 @@ const finishPreloader = () => {
 
 window.addEventListener('load', () => {
   finishPreloader();
+  if (initialHash) {
+    const target = document.getElementById(initialHash.substring(1));
+    if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 500);
+  }
 });
 // Increased safety fallback to 15 seconds so slow connections have enough time to load
 setTimeout(finishPreloader, 15000);
@@ -415,6 +421,10 @@ const helpMeBtn = document.getElementById('helpMeBtn');
 const closeHelpModal = document.getElementById('closeHelpModal');
 const contactFromHelpBtn = document.getElementById('contactFromHelpBtn');
 const helpTermsCheckbox = document.getElementById('helpTermsCheckbox');
+const termsConfirmModal = document.getElementById('termsConfirmModal');
+const confirmProceedBtn = document.getElementById('confirmProceedBtn');
+const confirmReadBtn = document.getElementById('confirmReadBtn');
+const closeConfirmModalBtn = document.getElementById('closeConfirmModalBtn');
 
 if (helpModal && helpMeBtn) {
   const closeHelp = () => {
@@ -422,6 +432,10 @@ if (helpModal && helpMeBtn) {
     document.body.style.overflow = '';
   };
   
+  const closeConfirmModal = () => {
+    if (termsConfirmModal) termsConfirmModal.classList.remove('show');
+  };
+
   helpMeBtn.addEventListener('click', (e) => {
     e.preventDefault();
     helpModal.classList.add('show');
@@ -432,30 +446,49 @@ if (helpModal && helpMeBtn) {
   
   if (contactFromHelpBtn) {
     contactFromHelpBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (contactFromHelpBtn.classList.contains('disabled')) return;
-      
-      const originalHTML = contactFromHelpBtn.innerHTML;
-      contactFromHelpBtn.style.pointerEvents = 'none';
-      contactFromHelpBtn.innerHTML = '<span class="maintenance-text">Website is under maintenance...</span><div class="btn-progress-bar"></div>';
-      
-      setTimeout(() => {
-        closeHelp();
-        if (helpTermsCheckbox) {
-          helpTermsCheckbox.checked = false;
-          contactFromHelpBtn.classList.add('disabled');
-        }
-        contactFromHelpBtn.style.pointerEvents = 'auto';
-        contactFromHelpBtn.innerHTML = originalHTML;
-        window.location.hash = '#home';
-      }, 2000);
+      if (contactFromHelpBtn.classList.contains('disabled')) {
+        e.preventDefault();
+        return;
+      }
+      closeHelp();
+      if (helpTermsCheckbox) {
+        helpTermsCheckbox.checked = false;
+        contactFromHelpBtn.classList.add('disabled');
+      }
     });
   }
 
-  if (helpTermsCheckbox && contactFromHelpBtn) {
+  if (helpTermsCheckbox && contactFromHelpBtn && termsConfirmModal) {
+    helpTermsCheckbox.addEventListener('click', (e) => {
+      // Intercept user checking the box to show confirmation modal instead
+      if (helpTermsCheckbox.checked) {
+        e.preventDefault();
+        termsConfirmModal.classList.add('show');
+      }
+    });
+
+    // Still handle standard unchecking to disable the button
     helpTermsCheckbox.addEventListener('change', (e) => {
-      if (e.target.checked) contactFromHelpBtn.classList.remove('disabled');
-      else contactFromHelpBtn.classList.add('disabled');
+      if (!e.target.checked) contactFromHelpBtn.classList.add('disabled');
+    });
+
+    if (confirmReadBtn) {
+      confirmReadBtn.addEventListener('click', () => {
+        window.location.href = 'terms.html';
+      });
+    }
+    if (closeConfirmModalBtn) closeConfirmModalBtn.addEventListener('click', closeConfirmModal);
+
+    if (confirmProceedBtn) {
+      confirmProceedBtn.addEventListener('click', () => {
+        helpTermsCheckbox.checked = true;
+        contactFromHelpBtn.classList.remove('disabled');
+        closeConfirmModal();
+      });
+    }
+
+    termsConfirmModal.addEventListener('click', e => {
+      if (e.target === termsConfirmModal) closeConfirmModal();
     });
   }
   
@@ -464,7 +497,13 @@ if (helpModal && helpMeBtn) {
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && helpModal.classList.contains('show')) closeHelp();
+    if (e.key === 'Escape') {
+      if (termsConfirmModal && termsConfirmModal.classList.contains('show')) {
+        closeConfirmModal();
+      } else if (helpModal && helpModal.classList.contains('show')) {
+        closeHelp();
+      }
+    }
   });
 }
 
