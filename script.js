@@ -1,3 +1,4 @@
+(() => {
 if (history.scrollRestoration) {
   history.scrollRestoration = 'manual';
 }
@@ -537,3 +538,4 @@ window.addEventListener('scroll', () => {
   clearTimeout(stTimeout);
   stTimeout = setTimeout(() => scrollTopBtn.classList.remove('show'), 1500);
 });
+})();

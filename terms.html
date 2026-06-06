@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Terms & Conditions | Hriday</title>
+
+  <!-- Security Headers -->
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=block" rel="stylesheet">
@@ -39,6 +44,7 @@
   </div>
 
   <script>
+    (() => {
     // document.body.style.overflow = 'hidden'; // Locks scrolling behind the overlay
     const maintStatus = document.getElementById('maintStatus');
     const maintProgress = document.getElementById('maintProgress');
@@ -46,6 +52,7 @@
     let mIdx = 0, mProg = 0;
     setInterval(() => { mIdx = (mIdx + 1) % maintMsgs.length; if(maintStatus) maintStatus.textContent = maintMsgs[mIdx]; }, 2500);
     setInterval(() => { mProg += Math.random() * 20; if(mProg > 100) mProg = 0; if(maintProgress) maintProgress.style.width = mProg + '%'; }, 600);
+    })();
   </script>
 
   <header class="terms-header">
@@ -188,6 +195,7 @@
   </div>
 
   <script>
+    (() => {
     const acceptTerms = document.getElementById('acceptTerms');
     const proceedContactBtn = document.getElementById('proceedContactBtn');
     const projectModal = document.getElementById('projectModal');
@@ -414,7 +422,8 @@
                   doc.setTextColor(150, 150, 150);
                   doc.text(`Generated on ${new Date().toLocaleString()}`, 20, 280);
 
-                  const fileName = `${pName.replace(/\s+/g, '_')}_Project_Details.pdf`;
+                  const safePName = pName.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+                  const fileName = `${safePName}_Project_Details.pdf`;
                   const blob = doc.output('blob');
                   const blobUrl = URL.createObjectURL(blob);
                   const pdfDataUri = doc.output('datauristring');
@@ -484,6 +493,7 @@
       if (window.scrollY > 40) termsHeader.classList.add('scrolled');
       else termsHeader.classList.remove('scrolled');
     });
+    })();
   </script>
 </body>
 </html>
