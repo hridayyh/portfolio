@@ -80,7 +80,7 @@ window.addEventListener('online', () => {
 // Sticky header
 const mainHeader = document.getElementById('mainHeader');
 window.addEventListener('scroll', () => {
-  if (window.scrollY > 60) mainHeader.classList.add('scrolled');
+  if (window.scrollY > 10) mainHeader.classList.add('scrolled');
   else mainHeader.classList.remove('scrolled');
 });
 
@@ -406,6 +406,65 @@ if (downloadModalBtn) {
       this.style.pointerEvents = 'auto';
       this.innerHTML = originalHTML;
     }
+  });
+}
+
+// Help Modal Logic
+const helpModal = document.getElementById('helpModal');
+const helpMeBtn = document.getElementById('helpMeBtn');
+const closeHelpModal = document.getElementById('closeHelpModal');
+const contactFromHelpBtn = document.getElementById('contactFromHelpBtn');
+const helpTermsCheckbox = document.getElementById('helpTermsCheckbox');
+
+if (helpModal && helpMeBtn) {
+  const closeHelp = () => {
+    helpModal.classList.remove('show');
+    document.body.style.overflow = '';
+  };
+  
+  helpMeBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    helpModal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  });
+
+  if (closeHelpModal) closeHelpModal.addEventListener('click', closeHelp);
+  
+  if (contactFromHelpBtn) {
+    contactFromHelpBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (contactFromHelpBtn.classList.contains('disabled')) return;
+      
+      const originalHTML = contactFromHelpBtn.innerHTML;
+      contactFromHelpBtn.style.pointerEvents = 'none';
+      contactFromHelpBtn.innerHTML = '<span class="maintenance-text">Website is under maintenance...</span><div class="btn-progress-bar"></div>';
+      
+      setTimeout(() => {
+        closeHelp();
+        if (helpTermsCheckbox) {
+          helpTermsCheckbox.checked = false;
+          contactFromHelpBtn.classList.add('disabled');
+        }
+        contactFromHelpBtn.style.pointerEvents = 'auto';
+        contactFromHelpBtn.innerHTML = originalHTML;
+        window.location.hash = '#home';
+      }, 2000);
+    });
+  }
+
+  if (helpTermsCheckbox && contactFromHelpBtn) {
+    helpTermsCheckbox.addEventListener('change', (e) => {
+      if (e.target.checked) contactFromHelpBtn.classList.remove('disabled');
+      else contactFromHelpBtn.classList.add('disabled');
+    });
+  }
+  
+  helpModal.addEventListener('click', e => {
+    if (e.target === helpModal) closeHelp();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && helpModal.classList.contains('show')) closeHelp();
   });
 }
 

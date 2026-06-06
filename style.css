@@ -132,7 +132,7 @@ header {
   top: 0; left: 0;
   width: 100%;
   z-index: 1000;
-  transition: var(--transition);
+  transition: background 0.15s ease, backdrop-filter 0.15s ease, -webkit-backdrop-filter 0.15s ease, border-bottom-color 0.15s ease;
   border-bottom: 1px solid transparent;
 }
 header.scrolled {
@@ -269,6 +269,8 @@ header.scrolled .navbar { padding: 18px 7%; }
 /* ── Hero ── */
 .hero {
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   position: relative;
@@ -351,14 +353,54 @@ header.scrolled .navbar { padding: 18px 7%; }
   font-size: clamp(20px, 3vw, 32px);
   font-weight: 300;
   color: var(--text-muted);
-  margin-bottom: 32px;
+  margin-bottom: 12px;
   letter-spacing: 1px;
   animation: fadeUp 0.8s 0.2s ease both;
+}
+.hero-freelance {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  animation: fadeUp 0.8s 0.25s ease both;
+  flex-wrap: wrap;
+}
+.hero-freelance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--border);
+  background: rgba(201, 169, 110, 0.05);
+  padding: 3px 10px;
+  border-radius: 50px;
+}
+.hero-freelance-text {
+  font-size: clamp(10px, 3.5vw, 14px);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.hero-freelance-text a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold);
+  transition: 0.3s;
+  padding-bottom: 1px;
+  margin-left: 2px;
+}
+.hero-freelance-text a:hover {
+  color: var(--gold-light);
+  border-bottom-color: var(--gold-light);
 }
 .hero-desc {
   max-width: 520px;
   color: var(--text-muted);
   font-size: 15px;
+  text-align: justify;
   line-height: 1.8;
   margin-bottom: 44px;
   animation: fadeUp 0.8s 0.3s ease both;
@@ -421,17 +463,19 @@ header.scrolled .navbar { padding: 18px 7%; }
 }
 .btn-secondary:focus, .btn-secondary:active { outline: none; border: none; }
 
-.btn:disabled {
+.btn:disabled,
+.btn.disabled {
   opacity: 0.4;
   cursor: not-allowed;
   transform: none !important;
   box-shadow: none !important;
+  pointer-events: none;
 }
 
 .hero-social {
   display: flex;
   gap: 14px;
-  margin-top: 48px;
+  margin-top: 16px;
   animation: fadeUp 0.8s 0.5s ease both;
 }
 .hero-social a {
@@ -456,21 +500,23 @@ header.scrolled .navbar { padding: 18px 7%; }
 /* Scroll indicator */
 .scroll-hint {
   position: absolute;
-  bottom: 40px;
+  bottom: 20px;
   left: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  z-index: 10;
   animation: fadeUp 1s 0.8s ease both;
 }
 .scroll-hint span {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 3px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--text-dim);
+  color: var(--text-muted);
+  opacity: 0.6;
 }
 .scroll-line {
   width: 1px; height: 50px;
@@ -579,6 +625,9 @@ section { padding: 120px 7%; }
   line-height: 1.9;
   margin-bottom: 20px;
   font-size: 15px;
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
 }
 .about-cta {
   display: flex;
@@ -978,7 +1027,7 @@ section { padding: 120px 7%; }
   font-size: clamp(26px, 4vw, 32px);
   font-weight: 300;
   color: var(--text);
-  margin-bottom: 24px;
+  margin-bottom: 4px;
   letter-spacing: -0.5px;
 }
 .contact-connect-box h4 em { font-style: italic; color: var(--gold); }
@@ -1034,7 +1083,7 @@ section { padding: 120px 7%; }
   color: var(--text-muted);
   font-size: 14px;
   line-height: 1.8;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 .modal-links {
   display: flex;
@@ -1056,6 +1105,62 @@ section { padding: 120px 7%; }
 }
 .modal-links a:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
 .modal-box .btn { width: 100%; justify-content: center; }
+
+.modal-terms {
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: center;
+}
+.terms-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: clamp(10px, 3.5vw, 13px);
+  color: var(--text-muted);
+  text-align: left;
+  user-select: none;
+  white-space: nowrap;
+}
+.terms-label input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--text-dim);
+  border-radius: 4px;
+  background: var(--bg2);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.terms-label input[type="checkbox"]:hover {
+  border-color: var(--gold);
+}
+.terms-label input[type="checkbox"]:checked {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.terms-label input[type="checkbox"]:checked::after {
+  content: '\f26a'; /* bi-check */
+  font-family: "bootstrap-icons";
+  color: #09090b;
+  font-size: 18px;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+}
+.terms-text a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: 0.3s;
+}
+.terms-text a:hover {
+  border-bottom-color: var(--gold);
+}
 
 /* ── Resume Modal Extensions ── */
 .resume-modal-box {
@@ -1322,6 +1427,23 @@ footer {
   border-bottom-color: transparent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+.btn-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: rgba(9, 9, 11, 0.4); /* Dark semi-transparent color for gold button */
+  width: 0%;
+  animation: btnProgressAnim 2s linear forwards;
+}
+@keyframes btnProgressAnim {
+  to { width: 100%; }
+}
+
+.maintenance-text {
+  font-size: clamp(8px, 2.8vw, 11px);
 }
 
 /* ── Responsive ── */

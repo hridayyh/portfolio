@@ -84,6 +84,10 @@
       <div class="hero-eyebrow">Hello, I'm</div>
       <h1 class="hero-title">Hriday <em>S Kumar</em></h1>
       <p class="hero-subtitle">Full Stack / MERN Stack Developer</p>
+      <div class="hero-freelance">
+        <span class="hero-freelance-badge">Freelancer</span>
+        <span class="hero-freelance-text">Need help to get your projects done? <a href="#" id="helpMeBtn">Click 'Help me'</a></span>
+      </div>
       <p class="hero-desc">
         I create modern, responsive websites and smooth UI experiences, along with static and dynamic web apps and software applications with backend integration.
       </p>
@@ -292,6 +296,29 @@
         </div>
         <iframe data-src="view.cv.pdf" class="resume-iframe" title="Hriday Resume"></iframe>
       </div>
+    </div>
+  </div>
+
+  <!-- Help Modal -->
+  <div id="helpModal" class="modal">
+    <div class="modal-box">
+      <button class="resume-modal-close" id="closeHelpModal" title="Close" style="position: absolute; top: 16px; right: 16px;">
+        <i class="bi bi-x-lg"></i>
+      </button>
+      <div class="modal-icon-wrap">
+        <i class="bi bi-rocket-takeoff-fill"></i>
+      </div>
+      <h3>Need Help?</h3>
+      <p>Stuck with your college projects or need custom freelance development? Let's get it done professionally for the best price!</p>
+      <div class="modal-terms">
+        <label class="terms-label">
+          <input type="checkbox" id="helpTermsCheckbox">
+          <span class="terms-text">I agree to the <a href="#">Terms & Conditions</a></span>
+        </label>
+      </div>
+      <a href="#contact" class="btn btn-primary disabled" id="contactFromHelpBtn">
+        <span>Contact Me</span> <i class="bi bi-send-fill"></i>
+      </a>
     </div>
   </div>
 
