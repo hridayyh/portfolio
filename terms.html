@@ -150,6 +150,7 @@
         <h4 style="font-family: var(--font-mono); font-size: 11px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">Next Step</h4>
         <p style="font-size: 14px; color: var(--text); margin-bottom: 12px;">Please share this downloaded PDF document with me via my social channels or email so we can get started right away!</p>
         <a href="#" id="manualDownloadBtn" style="font-size: 12px; color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 1px; display: inline-block; transition: 0.3s;"><i class="bi bi-download"></i> Didn't auto-download? Click here.</a>
+        <p id="inAppBrowserHint" style="display: none; font-size: 11px; color: #e05252; margin-top: 12px; margin-bottom: 0; line-height: 1.4;"><strong>Note:</strong> If downloading fails in this app, tap the 3 dots (⋮) in the top corner and select <em>"Open in browser"</em>.</p>
       </div>
 
       <button class="btn btn-primary" id="btnGoToContact" style="width: 100%;">
@@ -388,28 +389,35 @@
                   const fileName = `${pName.replace(/\s+/g, '_')}_Project_Details.pdf`;
                   const blob = doc.output('blob');
                   const blobUrl = URL.createObjectURL(blob);
+                  const pdfDataUri = doc.output('datauristring');
                   
                   const manualBtn = document.getElementById('manualDownloadBtn');
-                  if (manualBtn) {
-                    manualBtn.href = blobUrl;
-                    manualBtn.download = fileName;
-                    manualBtn.target = '_blank';
-                    manualBtn.rel = 'noopener noreferrer';
-                  }
+                  const inAppHint = document.getElementById('inAppBrowserHint');
 
                   const isInAppBrowser = /Instagram|FBAV|FBAN|LinkedIn/i.test(navigator.userAgent);
                   
                   if (isInAppBrowser) {
+                    if (inAppHint) inAppHint.style.display = 'block';
+                    if (manualBtn) {
+                      manualBtn.href = pdfDataUri; // Use Data URI for in-app manual button
+                      manualBtn.download = fileName;
+                      manualBtn.removeAttribute('target');
+                      manualBtn.removeAttribute('rel');
+                    }
                     const link = document.createElement('a');
                     link.style.display = 'none';
                     link.href = blobUrl;
                     link.download = fileName;
-                    link.target = '_blank';
-                    link.rel = 'noopener noreferrer';
                     document.body.appendChild(link);
                     link.click();
                     setTimeout(() => document.body.removeChild(link), 1000);
                   } else {
+                    if (manualBtn) {
+                      manualBtn.href = blobUrl;
+                      manualBtn.download = fileName;
+                      manualBtn.removeAttribute('target');
+                      manualBtn.removeAttribute('rel');
+                    }
                     doc.save(fileName);
                   }
                 } catch(err) {
