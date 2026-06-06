@@ -374,6 +374,24 @@ if (downloadModalBtn) {
     const filename = this.getAttribute('download');
     const originalHTML = this.innerHTML;
     
+    // Bypass Blob conversion for Instagram / In-App browsers as they block it silently
+    const isInAppBrowser = /Instagram|FBAV|FBAN|LinkedIn/i.test(navigator.userAgent);
+    if (isInAppBrowser) {
+      const fallbackLink = document.createElement('a');
+      fallbackLink.style.display = 'none';
+      fallbackLink.href = href;
+      fallbackLink.download = filename || 'Hriday_Resume.pdf';
+      fallbackLink.target = '_blank';
+      fallbackLink.rel = 'noopener noreferrer';
+      document.body.appendChild(fallbackLink);
+      fallbackLink.click();
+      setTimeout(() => document.body.removeChild(fallbackLink), 1000);
+      
+      this.style.pointerEvents = 'auto';
+      this.innerHTML = originalHTML;
+      return;
+    }
+    
     // Show loading spinner in the download icon
     this.style.pointerEvents = 'none';
     this.innerHTML = '<i class="bi bi-arrow-repeat" style="animation: spin 1s linear infinite;"></i>';

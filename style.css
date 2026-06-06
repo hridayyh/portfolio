@@ -270,7 +270,6 @@ header.scrolled .navbar { padding: 18px 7%; }
 .hero {
   min-height: 100vh;
   min-height: 100svh;
-  min-height: 100dvh;
   display: grid;
   place-items: center;
   position: relative;

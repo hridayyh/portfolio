@@ -148,7 +148,8 @@
       
       <div style="background: var(--bg3); border: 1px solid var(--border); padding: 20px; border-radius: 4px; margin-bottom: 24px; text-align: left;">
         <h4 style="font-family: var(--font-mono); font-size: 11px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">Next Step</h4>
-        <p style="font-size: 14px; color: var(--text); margin-bottom: 0;">Please share this downloaded PDF document with me via my social channels or email so we can get started right away!</p>
+        <p style="font-size: 14px; color: var(--text); margin-bottom: 12px;">Please share this downloaded PDF document with me via my social channels or email so we can get started right away!</p>
+        <a href="#" id="manualDownloadBtn" style="font-size: 12px; color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 1px; display: inline-block; transition: 0.3s;"><i class="bi bi-download"></i> Didn't auto-download? Click here.</a>
       </div>
 
       <button class="btn btn-primary" id="btnGoToContact" style="width: 100%;">
@@ -384,7 +385,23 @@
                   doc.setTextColor(150, 150, 150);
                   doc.text(`Generated on ${new Date().toLocaleString()}`, 20, 280);
 
-                  doc.save(`${pName.replace(/\s+/g, '_')}_Project_Details.pdf`);
+                  const fileName = `${pName.replace(/\s+/g, '_')}_Project_Details.pdf`;
+                  const isInAppBrowser = /Instagram|FBAV|FBAN|LinkedIn/i.test(navigator.userAgent);
+                  
+                  if (isInAppBrowser) {
+                    // Instagram strips download attributes, so we feed it the raw data URI to render natively
+                    const pdfDataUri = doc.output('datauristring');
+                    const link = document.createElement('a');
+                    link.href = pdfDataUri;
+                    link.download = fileName;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  } else {
+                    doc.save(fileName);
+                  }
                 } catch(err) {
                   console.error("PDF generation error: ", err);
                 }
