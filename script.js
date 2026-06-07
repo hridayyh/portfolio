@@ -191,6 +191,29 @@ function showToast(msg) {
 }
 toastClose.addEventListener('click', () => { toast.classList.remove('show-toast'); clearTimeout(toastTimeout); });
 
+// Hero Space Particles
+const heroParticles = document.getElementById('heroParticles');
+if (heroParticles) {
+  const particleCount = 50;
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    
+    // Randomize size, position, duration, and opacity
+    const size = Math.random() * 2 + 1;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.left = `${Math.random() * 100}%`;
+    particle.style.top = `${Math.random() * 100}%`;
+    
+    particle.style.setProperty('--p-dur', `${Math.random() * 6 + 4}s`);
+    particle.style.animationDelay = `${Math.random() * 5}s`;
+    particle.style.setProperty('--p-opac', `${Math.random() * 0.5 + 0.2}`);
+    
+    heroParticles.appendChild(particle);
+  }
+}
+
 // --- Resume PDF Loader Logic ---
 let pdfLoaderInterval;
 let pdfPhaseTimeout;
