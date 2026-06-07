@@ -112,11 +112,13 @@ menuBtn.addEventListener('click', () => {
   navLinks.classList.toggle('active');
   menuBtn.classList.toggle('open');
 });
-document.querySelectorAll('.nav-links a').forEach(a => {
-  a.addEventListener('click', () => {
+
+// Performance: Using Event Delegation instead of multiple memory-heavy listeners
+navLinks.addEventListener('click', e => {
+  if (e.target.closest('a')) {
     navLinks.classList.remove('active');
     menuBtn.classList.remove('open');
-  });
+  }
 });
 document.addEventListener('click', e => {
   if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
@@ -204,6 +206,7 @@ toastClose.addEventListener('click', () => { toast.classList.remove('show-toast'
 const heroParticles = document.getElementById('heroParticles');
 if (heroParticles) {
   const particleCount = 20; // Reduced count to prevent lag
+  const fragment = document.createDocumentFragment(); // Performance: Batches DOM rendering in memory
   for (let i = 0; i < particleCount; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
@@ -219,8 +222,9 @@ if (heroParticles) {
     particle.style.animationDelay = `${Math.random() * 5}s`;
     particle.style.setProperty('--p-opac', `${Math.random() * 0.5 + 0.2}`);
     
-    heroParticles.appendChild(particle);
+    fragment.appendChild(particle);
   }
+  heroParticles.appendChild(fragment);
 }
 
 // --- Resume PDF Loader Logic ---
@@ -281,6 +285,7 @@ function loadPdfDocument(e, attempt = 1) {
     }
   } else {
     const baseSrc = iframe.getAttribute('data-src');
+    if (!baseSrc || baseSrc.toLowerCase().trim().startsWith('javascript:')) return; // Security: Prevents protocol injection
     const base = baseSrc.split('#')[0];
     const hash = baseSrc.split('#')[1] || '';
     const isFile = window.location.protocol === 'file:';
@@ -404,6 +409,10 @@ if (downloadModalBtn) {
     if (this.style.pointerEvents === 'none') return;
     
     const href = this.getAttribute('href');
+    
+    // Security: Prevents protocol-level JS injection if href is maliciously mutated
+    if (!href || href.toLowerCase().trim().startsWith('javascript:')) return;
+
     const filename = this.getAttribute('download');
     const originalHTML = this.innerHTML;
     

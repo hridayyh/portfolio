@@ -32,7 +32,12 @@ html.light-theme {
   --border-dim: rgba(0, 0, 0, 0.12);
 }
 
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  -webkit-tap-highlight-color: transparent;
+}
 
 html { scroll-behavior: smooth; }
 
@@ -1328,7 +1333,7 @@ footer {
 .scroll-top-btn {
   position: fixed;
   bottom: 30px; right: 30px;
-  width: 38px; height: 38px;
+  width: 46px; height: 46px;
   border: 1px solid var(--border);
   border-radius: 50%;
   background: var(--bg2);
@@ -1336,16 +1341,17 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 18px;
   text-decoration: none;
   z-index: 999;
   opacity: 0;
   pointer-events: none;
   transition: all 0.3s;
   transform: translateY(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 .scroll-top-btn.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-.scroll-top-btn:hover { background: var(--gold-dim); transform: translateY(-4px); }
+.scroll-top-btn:hover { background: var(--gold-dim); border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(var(--gold-rgb), 0.25); }
 
 /* ── Animations ── */
 @keyframes fadeUp {
