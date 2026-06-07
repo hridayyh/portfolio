@@ -137,8 +137,10 @@ window.addEventListener('hashchange', () => {
       // Use getElementById instead of querySelector to prevent CSS selector injection
       // and unhandled DOM exceptions if the user inputs a malformed hash in the URL.
       const targetId = hash.substring(1);
-      const target = document.getElementById(targetId);
-      if (target) target.scrollIntoView({ behavior: 'smooth' });
+      try {
+        const target = document.getElementById(decodeURIComponent(targetId));
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      } catch (e) {}
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
