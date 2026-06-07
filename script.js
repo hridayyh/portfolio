@@ -87,7 +87,7 @@ window.addEventListener('online', () => {
 // Sticky header
 const mainHeader = document.getElementById('mainHeader');
 window.addEventListener('scroll', () => {
-  if (window.scrollY > 10) mainHeader.classList.add('scrolled');
+  if (window.scrollY > 80) mainHeader.classList.add('scrolled');
   else mainHeader.classList.remove('scrolled');
 });
 
@@ -194,7 +194,7 @@ toastClose.addEventListener('click', () => { toast.classList.remove('show-toast'
 // Hero Space Particles
 const heroParticles = document.getElementById('heroParticles');
 if (heroParticles) {
-  const particleCount = 50;
+  const particleCount = 20; // Reduced count to prevent lag
   for (let i = 0; i < particleCount; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
