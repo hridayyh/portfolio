@@ -1,16 +1,16 @@
 :root {
-  --bg: #141417;
-  --bg2: #1c1c20;
-  --bg3: #25252a;
-  --gold: #dfb12e;
-  --gold-light: #f0c954;
-  --gold-dim: rgba(223, 177, 46, 0.15);
-  --gold-rgb: 223, 177, 46;
-  --text: #fafafa;
-  --text-muted: #a1a1aa;
-  --text-dim: #71717a;
-  --border: rgba(223, 177, 46, 0.25);
-  --border-dim: rgba(255, 255, 255, 0.1);
+  --bg: #1d1d22;
+  --bg2: #26262c;
+  --bg3: #303038;
+  --gold: #eab308;
+  --gold-light: #fde047;
+  --gold-dim: rgba(234, 179, 8, 0.15);
+  --gold-rgb: 234, 179, 8;
+  --text: #ffffff;
+  --text-muted: #d4d4d8;
+  --text-dim: #a1a1aa;
+  --border: rgba(234, 179, 8, 0.25);
+  --border-dim: rgba(255, 255, 255, 0.15);
   --font-display: 'Cormorant Garamond', serif;
   --font-body: 'DM Sans', sans-serif;
   --font-mono: 'Space Mono', monospace;
@@ -21,15 +21,15 @@ html.light-theme {
   --bg: #fafaf9;
   --bg2: #f4f4f5;
   --bg3: #e4e4e7;
-  --gold: #b8860b;
-  --gold-light: #dfb12e;
-  --gold-dim: rgba(184, 134, 11, 0.15);
-  --gold-rgb: 184, 134, 11;
-  --text: #18181b;
-  --text-muted: #52525b;
-  --text-dim: #a1a1aa;
-  --border: rgba(184, 134, 11, 0.25);
-  --border-dim: rgba(0, 0, 0, 0.08);
+  --gold: #d97706;
+  --gold-light: #eab308;
+  --gold-dim: rgba(217, 119, 6, 0.15);
+  --gold-rgb: 217, 119, 6;
+  --text: #000000;
+  --text-muted: #3f3f46;
+  --text-dim: #71717a;
+  --border: rgba(217, 119, 6, 0.25);
+  --border-dim: rgba(0, 0, 0, 0.12);
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -139,7 +139,7 @@ header {
   transition: background 0.3s ease-out, backdrop-filter 0.3s ease-out, -webkit-backdrop-filter 0.3s ease-out, border-bottom-color 0.3s ease-out;
 }
 header.scrolled {
-  background: rgba(20,20,23,0.85);
+  background: rgba(29, 29, 34, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom-color: var(--border-dim);
@@ -319,6 +319,8 @@ header.scrolled .navbar { padding: 18px 7%; }
   mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
   opacity: 0.25; /* Dims the grid lines */
+  transform: translateZ(0); /* Offloads the complex mask to the GPU */
+  will-change: transform;
 }
 
 .hero-content {
@@ -431,7 +433,7 @@ header.scrolled .navbar { padding: 18px 7%; }
 }
 .btn-primary {
   background: var(--gold);
-  color: #141417;
+  color: #1d1d22;
 }
 .btn-primary::after {
   content: '';
@@ -1050,7 +1052,7 @@ section { padding: 120px 7%; }
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: rgba(20,20,23,0.85);
+  background: rgba(29, 29, 34, 0.85);
   backdrop-filter: blur(8px);
   align-items: center;
   justify-content: center;

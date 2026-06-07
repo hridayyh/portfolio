@@ -86,10 +86,17 @@ window.addEventListener('online', () => {
 
 // Sticky header
 const mainHeader = document.getElementById('mainHeader');
+let headerTicking = false;
 window.addEventListener('scroll', () => {
-  if (window.scrollY > 80) mainHeader.classList.add('scrolled');
-  else mainHeader.classList.remove('scrolled');
-});
+  if (!headerTicking) {
+    window.requestAnimationFrame(() => {
+      if (window.scrollY > 80) mainHeader.classList.add('scrolled');
+      else mainHeader.classList.remove('scrolled');
+      headerTicking = false;
+    });
+    headerTicking = true;
+  }
+}, { passive: true });
 
 // Mobile menu
 const menuBtn = document.getElementById('menuBtn');
@@ -461,12 +468,19 @@ if (downloadModalBtn) {
 const scrollTopBtn = document.getElementById('scrollTopBtn');
 const aboutSection = document.getElementById('about');
 let lastST = 0, stTimeout;
+let scrollTicking = false;
 window.addEventListener('scroll', () => {
-  const cur = window.pageYOffset;
-  if (cur > aboutSection.offsetTop && cur < lastST) scrollTopBtn.classList.add('show');
-  else scrollTopBtn.classList.remove('show');
-  lastST = cur <= 0 ? 0 : cur;
-  clearTimeout(stTimeout);
-  stTimeout = setTimeout(() => scrollTopBtn.classList.remove('show'), 1500);
-});
+  if (!scrollTicking) {
+    window.requestAnimationFrame(() => {
+      const cur = window.pageYOffset;
+      if (cur > aboutSection.offsetTop && cur < lastST) scrollTopBtn.classList.add('show');
+      else scrollTopBtn.classList.remove('show');
+      lastST = cur <= 0 ? 0 : cur;
+      clearTimeout(stTimeout);
+      stTimeout = setTimeout(() => scrollTopBtn.classList.remove('show'), 1500);
+      scrollTicking = false;
+    });
+    scrollTicking = true;
+  }
+}, { passive: true });
 })();
