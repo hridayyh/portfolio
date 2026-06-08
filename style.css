@@ -18,9 +18,9 @@
 }
 
 html.light-theme {
-  --bg: #dcdcd8;
-  --bg2: #d2d2ce;
-  --bg3: #c8c8c4;
+  --bg: #ffffff;
+  --bg2: #f8f8f8;
+  --bg3: #f0f0f0;
   --gold: #c29800;
   --gold-light: #eab308;
   --gold-dim: rgba(194, 152, 0, 0.15);
@@ -150,7 +150,7 @@ header.scrolled {
   border-bottom-color: var(--border-dim);
 }
 html.light-theme header.scrolled {
-  background: rgba(220, 220, 216, 0.85);
+  background: rgba(255, 255, 255, 0.85);
 }
 .navbar {
   display: flex;
