@@ -100,17 +100,6 @@ if (logo) {
 
 // Sticky header
 const mainHeader = document.getElementById('mainHeader');
-let headerTicking = false;
-window.addEventListener('scroll', () => {
-  if (!headerTicking) {
-    window.requestAnimationFrame(() => {
-      if (window.scrollY > 80) mainHeader.classList.add('scrolled');
-      else mainHeader.classList.remove('scrolled');
-      headerTicking = false;
-    });
-    headerTicking = true;
-  }
-}, { passive: true });
 
 // Mobile menu
 const menuBtn = document.getElementById('menuBtn');
@@ -183,8 +172,14 @@ window.addEventListener('hashchange', () => {
 // Scroll reveal
 const revealEls = document.querySelectorAll('.reveal');
 const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.12 });
+  entries.forEach(e => { 
+    if (e.isIntersecting) { 
+      e.target.classList.add('visible'); 
+      revealObserver.unobserve(e.target); // Memory optimization: stops tracking once revealed
+      setTimeout(() => e.target.style.willChange = 'auto', 1200); // GPU optimization: frees up VRAM
+    } 
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' }); // Better trigger point prevents early pop-ins
 revealEls.forEach(el => revealObserver.observe(el));
 
 // Theme
@@ -522,16 +517,26 @@ if (scrollTopBtn) {
 }
 
 let lastST = 0, stTimeout;
+// Centralized High-Performance Scroll Loop (Optimizes CPU/GPU & prevents scroll lag)
 let scrollTicking = false;
 window.addEventListener('scroll', () => {
   if (!scrollTicking) {
     window.requestAnimationFrame(() => {
-      const cur = window.pageYOffset;
-      if (cur > aboutSection.offsetTop && cur < lastST) scrollTopBtn.classList.add('show');
-      else scrollTopBtn.classList.remove('show');
-      lastST = cur <= 0 ? 0 : cur;
-      clearTimeout(stTimeout);
-      stTimeout = setTimeout(() => scrollTopBtn.classList.remove('show'), 1500);
+      const cur = window.scrollY || window.pageYOffset;
+      
+      // 1. Sticky Header UI
+      if (cur > 80) mainHeader.classList.add('scrolled');
+      else mainHeader.classList.remove('scrolled');
+
+      // 2. Scroll Top Btn UI
+      if (aboutSection && scrollTopBtn) {
+        if (cur > aboutSection.offsetTop && cur < lastST) scrollTopBtn.classList.add('show');
+        else scrollTopBtn.classList.remove('show');
+        lastST = cur <= 0 ? 0 : cur;
+        clearTimeout(stTimeout);
+        stTimeout = setTimeout(() => scrollTopBtn.classList.remove('show'), 1500);
+      }
+
       scrollTicking = false;
     });
     scrollTicking = true;

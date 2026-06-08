@@ -142,6 +142,7 @@ header {
   z-index: 1000;
   border-bottom: 1px solid transparent;
   transition: background 0.3s ease-out, backdrop-filter 0.3s ease-out, -webkit-backdrop-filter 0.3s ease-out, border-bottom-color 0.3s ease-out;
+  transform: translateZ(0); /* Hardware acceleration for blur filter smoothing */
 }
 header.scrolled {
   background: rgba(29, 29, 34, 0.85);
@@ -347,6 +348,7 @@ header.scrolled .navbar { padding: 18px 7%; }
   position: absolute;
   background: var(--gold-light);
   border-radius: 50%;
+  box-shadow: 0 0 8px 1px var(--gold-light);
   opacity: 0;
   will-change: transform, opacity; /* Enforces GPU hardware acceleration */
   animation: particleAnim var(--p-dur) linear infinite;
@@ -437,6 +439,8 @@ header.scrolled .navbar { padding: 18px 7%; }
   position: relative;
   overflow: hidden;
   touch-action: manipulation;
+  backface-visibility: hidden; /* Prevents font-weight flicker during transition */
+  transform: translateZ(0);
 }
 .btn-primary {
   background: var(--gold);
@@ -569,6 +573,8 @@ section { padding: 120px 7%; }
 .reveal {
   opacity: 0;
   transform: translateY(40px);
+  will-change: opacity, transform; /* Instructs browser to pre-render the animation */
+  backface-visibility: hidden;
   transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
 }
 .reveal.visible { opacity: 1; transform: none; }
@@ -885,6 +891,7 @@ section { padding: 120px 7%; }
   padding: 44px 40px;
   position: relative;
   overflow: hidden;
+  backface-visibility: hidden;
   transition: var(--transition);
   display: flex;
   flex-direction: column;
@@ -1070,6 +1077,8 @@ section { padding: 120px 7%; }
   border: 1px solid var(--border);
   padding: 52px 48px;
   max-width: 440px;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
   width: 90%;
   text-align: center;
   position: relative;
@@ -1490,3 +1499,7 @@ footer {
 html.light-theme .hero-grid { opacity: 0.15; } /* Dims light mode grid */
 html.light-theme .project-tile { background: var(--bg); }
 html.light-theme .project-tile:hover { background: var(--bg2); }
+html.light-theme .particle { 
+  background: var(--gold); 
+  box-shadow: 0 0 8px 1px rgba(var(--gold-rgb), 0.8); 
+}
