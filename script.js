@@ -103,15 +103,23 @@ const menuBtn = document.getElementById('menuBtn');
 const navLinks = document.getElementById('navLinks');
 const sidebarClose = document.getElementById('sidebarClose');
 
-sidebarClose.addEventListener('click', () => {
+const closeSidebar = (e) => {
+  if (e && e.type === 'touchstart') e.preventDefault(); // Instantly triggers during scroll & prevents double-firing
   navLinks.classList.remove('active');
   menuBtn.classList.remove('open');
-});
+};
 
-menuBtn.addEventListener('click', () => {
+const toggleSidebar = (e) => {
+  if (e && e.type === 'touchstart') e.preventDefault(); // Instantly triggers during scroll & prevents double-firing
   navLinks.classList.toggle('active');
   menuBtn.classList.toggle('open');
-});
+};
+
+sidebarClose.addEventListener('click', closeSidebar);
+sidebarClose.addEventListener('touchstart', closeSidebar, { passive: false });
+
+menuBtn.addEventListener('click', toggleSidebar);
+menuBtn.addEventListener('touchstart', toggleSidebar, { passive: false });
 
 // Performance: Using Event Delegation instead of multiple memory-heavy listeners
 navLinks.addEventListener('click', e => {

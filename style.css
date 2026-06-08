@@ -260,6 +260,7 @@ header.scrolled .navbar { padding: 18px 7%; }
   cursor: pointer;
   position: relative;
   z-index: 1001; /* Keeps it above the sliding sidebar */
+  touch-action: none;
 }
 .menu-btn span {
   display: block; position: absolute; height: 2px; width: 100%;
@@ -434,6 +435,7 @@ header.scrolled .navbar { padding: 18px 7%; }
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  touch-action: manipulation;
 }
 .btn-primary {
   background: var(--gold);
@@ -1349,6 +1351,7 @@ footer {
   transition: all 0.3s;
   transform: translateY(10px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  touch-action: manipulation;
 }
 .scroll-top-btn.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
 .scroll-top-btn:hover { background: var(--gold-dim); border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(var(--gold-rgb), 0.25); }
