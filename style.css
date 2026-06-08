@@ -168,6 +168,7 @@ header.scrolled .navbar { padding: 18px 7%; }
   text-decoration: none;
   letter-spacing: 4px;
   transition: 0.3s;
+  touch-action: manipulation;
 }
 .logo:hover { letter-spacing: 6px; }
 .nav-links {

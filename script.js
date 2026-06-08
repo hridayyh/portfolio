@@ -84,6 +84,20 @@ window.addEventListener('online', () => {
   if (document.readyState === 'complete') isLoaded = true;
 });
 
+// Fast-click & smooth scroll for Logo
+const logo = document.querySelector('.logo');
+if (logo) {
+  const handleLogoInteraction = (e) => {
+    if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
+    else if (e && e.type === 'click') e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Keeps URL clean by avoiding the #hash jump
+    if (window.history.pushState) window.history.pushState(null, null, window.location.pathname);
+  };
+  logo.addEventListener('click', handleLogoInteraction);
+  logo.addEventListener('touchstart', handleLogoInteraction, { passive: false });
+}
+
 // Sticky header
 const mainHeader = document.getElementById('mainHeader');
 let headerTicking = false;
@@ -102,15 +116,22 @@ window.addEventListener('scroll', () => {
 const menuBtn = document.getElementById('menuBtn');
 const navLinks = document.getElementById('navLinks');
 const sidebarClose = document.getElementById('sidebarClose');
+let isMenuToggling = false; // State lock to prevent flickering
 
 const closeSidebar = (e) => {
-  if (e && e.type === 'touchstart') e.preventDefault(); // Instantly triggers during scroll & prevents double-firing
+  if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
   navLinks.classList.remove('active');
   menuBtn.classList.remove('open');
 };
 
 const toggleSidebar = (e) => {
-  if (e && e.type === 'touchstart') e.preventDefault(); // Instantly triggers during scroll & prevents double-firing
+  if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
+  
+  // Prevent ghost-click double-firing glitch
+  if (isMenuToggling) return;
+  isMenuToggling = true;
+  setTimeout(() => isMenuToggling = false, 350);
+
   navLinks.classList.toggle('active');
   menuBtn.classList.toggle('open');
 };
@@ -128,12 +149,14 @@ navLinks.addEventListener('click', e => {
     menuBtn.classList.remove('open');
   }
 });
-document.addEventListener('click', e => {
+const handleOutsideInteraction = e => {
   if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
     navLinks.classList.remove('active');
     menuBtn.classList.remove('open');
   }
-});
+};
+document.addEventListener('click', handleOutsideInteraction);
+document.addEventListener('touchstart', handleOutsideInteraction, { passive: true }); // Instant close on outside touch
 
 // Ensure back button correctly scrolls to the previous section
 window.addEventListener('hashchange', () => {
@@ -486,6 +509,18 @@ if (downloadModalBtn) {
 // Scroll top
 const scrollTopBtn = document.getElementById('scrollTopBtn');
 const aboutSection = document.getElementById('about');
+
+if (scrollTopBtn) {
+  const handleScrollTopInteraction = (e) => {
+    if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
+    else if (e && e.type === 'click') e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.history.pushState) window.history.pushState(null, null, window.location.pathname);
+  };
+  scrollTopBtn.addEventListener('click', handleScrollTopInteraction);
+  scrollTopBtn.addEventListener('touchstart', handleScrollTopInteraction, { passive: false });
+}
+
 let lastST = 0, stTimeout;
 let scrollTicking = false;
 window.addEventListener('scroll', () => {
