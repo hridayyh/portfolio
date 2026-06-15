@@ -3,373 +3,369 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hriday | Portfolio</title>
-
-  <script>
-    // Security: Console Attack Prevention
-    (function() {
-      // 1. Self-XSS Warning: Deters users from pasting malicious code.
-      if (typeof console !== 'undefined') {
-        console.log('%cSTOP!', 'color: red; font-size: 48px; font-weight: bold; -webkit-text-stroke: 1px black;');
-        console.log('%cThis is a browser feature intended for developers. If someone told you to copy-paste something here, it is a scam and will give them access to your information.', 'font-size: 16px;');
-        console.log('%cSee https://en.wikipedia.org/wiki/Self-XSS for more information.', 'font-size: 12px;');
-      }
-      // 2. Console Hardening: Prevents malicious scripts from redefining console methods.
-      try {
-        if (typeof console === 'object') {
-          Object.freeze(console);
-        }
-      } catch (e) { /* Fails silently if not supported */ }
-    })();
-  </script>
+  <meta name="description" content="Hriday S Kumar — Full Stack MERN Developer Portfolio">
+  <title>Hriday S Kumar — Full Stack Developer</title>
 
   <!-- Security Headers -->
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data:; frame-src 'self' https://docs.google.com; connect-src 'self'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests; frame-ancestors 'none';">
-  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=(), hid=(), idle-detection=()">
+  <meta name="theme-color" content="#12121a" id="themeColorMeta">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=block" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css" />
 
-  <script>
-    (function() {
-      const savedTheme = sessionStorage.getItem('theme');
-      if (savedTheme === 'light') {
-        document.documentElement.classList.add('light-theme');
-      } else if (savedTheme === 'dark') {
-        document.documentElement.classList.remove('light-theme');
-      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-        document.documentElement.classList.add('light-theme');
-      }
-    })();
-  </script>
-
   <link rel="stylesheet" href="style.css">
+
+  <!-- Apply theme immediately before rendering to prevent Dark Mode flashing -->
+  <script>
+    const savedTheme = localStorage.getItem('theme') || 'system';
+    const isLight = savedTheme === 'light' || (savedTheme === 'system' && window.matchMedia('(prefers-color-scheme: light)').matches);
+    if (isLight) {
+      document.documentElement.classList.add('light-theme');
+      document.getElementById('themeColorMeta').setAttribute('content', '#f9f9fb');
+    }
+  </script>
 </head>
 <body>
 
-  <!-- Maintenance Overlay -->
-  <div id="maintenanceOverlay" style="position: fixed; inset: 0; background: var(--bg); z-index: 999999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;">
-    <i class="bi bi-gear-wide-connected" style="font-size: 56px; color: var(--gold); margin-bottom: 24px; animation: spin 6s linear infinite;"></i>
-    <h2 style="font-family: var(--font-display); font-size: clamp(36px, 5vw, 52px); font-weight: 300; color: var(--text); margin-bottom: 8px; letter-spacing: -1px;">Website in <em>Maintenance</em></h2>
-    <p style="color: var(--text-muted); font-size: 14px; max-width: 400px; margin-bottom: 40px; line-height: 1.8;">My portfolio is temporarily down for maintenance. I'm working on updates and will be back shortly.</p>
-    
-    <div style="width: 100%; max-width: 250px; margin-bottom: 48px;">
-      <div class="loader-status" id="maintStatus" style="color: var(--gold); margin-bottom: 12px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-mono);">Fixing bugs...</div>
-      <div class="loader-bar-wrap" style="width: 100%; height: 2px; background: var(--border); overflow: hidden; position: relative;">
-        <div class="loader-bar-progress" id="maintProgress" style="width: 0%; height: 100%; background: var(--gold); transition: width 0.4s ease;"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    (() => {
-    // document.body.style.overflow = 'hidden'; // Locks scrolling behind the overlay
-    const maintStatus = document.getElementById('maintStatus');
-    const maintProgress = document.getElementById('maintProgress');
-    const maintMsgs = ["Fixing bugs...", "Updating UI...", "Optimizing performance...", "Applying patches...", "Deploying new features..."];
-    let mIdx = 0, mProg = 0;
-    setInterval(() => { mIdx = (mIdx + 1) % maintMsgs.length; if(maintStatus) maintStatus.textContent = maintMsgs[mIdx]; }, 2500);
-    setInterval(() => { mProg += Math.random() * 20; if(mProg > 100) mProg = 0; if(maintProgress) maintProgress.style.width = mProg + '%'; }, 600);
-    })();
-  </script>
-
   <!-- Preloader -->
   <div id="preloader">
-    <div class="loader-content">
-      <div class="loader-status" id="loaderStatus">Initializing...</div>
-      <div class="loader-bar-wrap">
-        <div class="loader-bar-progress" id="loaderProgress"></div>
-      </div>
+    <div class="pre-inner">
+      <div class="pre-bar"><div class="pre-fill" id="preFill"></div></div>
+      <div class="pre-pct" id="prePct">0</div>
     </div>
   </div>
 
-  <!-- Navbar -->
-  <header id="mainHeader">
-    <nav class="navbar">
-      <a href="#home" class="logo">Hriday</a>
-
-      <ul class="nav-links" id="navLinks">
-        <li class="sidebar-close" id="sidebarClose"><i class="bi bi-x-lg"></i></li>
-        <li><a href="#home" data-index="01">Home</a></li>
-        <li><a href="#about" data-index="02">About</a></li>
-        <li><a href="#experience" data-index="03">Experience</a></li>
-        <li><a href="#education" data-index="04">Education</a></li>
-        <li><a href="#skills" data-index="05">Skills</a></li>
-        <li><a href="#projects" data-index="06">Projects</a></li>
-        <li><a href="#contact" data-index="07">Contact</a></li>
-
-        <li class="theme-toggle-container">
-          <div class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
-            <i class="bi bi-display" id="currentThemeIcon"></i>
-            <span class="theme-toggle-text">Theme</span>
-          </div>
-          <div class="theme-dropdown" id="themeDropdown">
-            <div class="theme-option" data-theme="light"><i class="bi bi-sun-fill"></i> Light</div>
-            <div class="theme-option" data-theme="dark"><i class="bi bi-moon-stars-fill"></i> Dark</div>
-            <div class="theme-option active" data-theme="system"><i class="bi bi-display"></i> System</div>
-          </div>
-        </li>
-      </ul>
-
-      <div class="menu-btn" id="menuBtn">
-        <span></span>
-        <span></span>
-        <span></span>
+  <!-- Top Bar -->
+  <header id="topbar">
+    <a href="#home" class="tb-logo">Hriday </a>
+    <nav class="tb-nav" id="tbNav">
+      <a href="#about" class="tbn-link">About</a>
+      <a href="#experience" class="tbn-link">Experience</a>
+      <a href="#education" class="tbn-link">Education</a>
+      <a href="#skills" class="tbn-link">Skills</a>
+      <a href="#projects" class="tbn-link">Projects</a>
+      <a href="#contact" class="tbn-link">Contact</a>
+      <div class="dt-toggle tb-theme-toggle">
+        <button class="theme-option" data-theme="light" aria-label="Light Theme" title="Light"><i class="bi bi-sun-fill"></i></button>
+        <button class="theme-option active" data-theme="system" aria-label="System Theme" title="Auto"><i class="bi bi-display"></i></button>
+        <button class="theme-option" data-theme="dark" aria-label="Dark Theme" title="Dark"><i class="bi bi-moon-stars-fill"></i></button>
       </div>
     </nav>
+    <button class="tb-menu" id="tbMenu" aria-label="Menu">
+      <span></span><span></span>
+    </button>
   </header>
 
-  <!-- Hero -->
-  <section class="hero" id="home">
-    <div class="hero-grid"></div>
-    <div class="hero-particles" id="heroParticles"></div>
-    <div class="hero-orb hero-orb-1"></div>
-    <div class="hero-orb hero-orb-2"></div>
-
-    <div class="hero-content">
-      <div class="hero-eyebrow">Hello, I'm</div>
-      <h1 class="hero-title">Hriday <em>S Kumar</em></h1>
-      <p class="hero-subtitle">Full Stack / MERN Stack Developer</p>
-      <p class="hero-desc">
-        I create modern, responsive websites and smooth UI experiences, along with static and dynamic web apps and software applications with backend integration.
-      </p>
-      <div class="hero-actions">
-        <a href="#projects" class="btn btn-primary"><span>View Projects</span> <i class="bi bi-arrow-right"></i></a>
-        <a href="#contact" class="btn btn-outline">Contact Me</a>
+  <!-- Mobile Drawer -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-inner">
+      <button class="drawer-close" id="drawerClose" aria-label="Close menu"><i class="bi bi-x"></i></button>
+      <nav class="drawer-nav">
+        <a href="#home"       class="dn-link" data-n="01">Home</a>
+        <a href="#about"      class="dn-link" data-n="02">About</a>
+        <a href="#experience" class="dn-link" data-n="03">Experience</a>
+        <a href="#education"  class="dn-link" data-n="04">Education</a>
+        <a href="#skills"     class="dn-link" data-n="05">Skills</a>
+        <a href="#projects"   class="dn-link" data-n="06">Projects</a>
+        <a href="#contact"    class="dn-link" data-n="07">Contact</a>
+      </nav>
+      <div class="drawer-theme">
+        <span class="dt-label">Theme</span>
+        <div class="dt-toggle">
+          <button class="theme-option" data-theme="light" aria-label="Light Theme" title="Light"><i class="bi bi-sun-fill"></i></button>
+          <button class="theme-option active" data-theme="system" aria-label="System Theme" title="Auto"><i class="bi bi-display"></i></button>
+          <button class="theme-option" data-theme="dark" aria-label="Dark Theme" title="Dark"><i class="bi bi-moon-stars-fill"></i></button>
+        </div>
       </div>
-      <div class="hero-social">
-        <a href="https://www.instagram.com/hridayyh?igsh=cHZzM3lvdWIzOGZr" target="_blank" rel="noopener noreferrer" title="Instagram"><i class="bi bi-instagram"></i></a>
-        <a href="https://github.com/hridayyh" target="_blank" rel="noopener noreferrer" title="GitHub"><i class="bi bi-github"></i></a>
-        <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/" target="_blank" rel="noopener noreferrer" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+      <div class="drawer-socials">
+        <a href="https://github.com/hridayyh" target="_blank" rel="noopener"><i class="bi bi-github"></i></a>
+        <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/" target="_blank" rel="noopener"><i class="bi bi-linkedin"></i></a>
+        <a href="https://www.instagram.com/hridayyh" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section id="home" class="hero">
+    <div class="hero-bg-text" aria-hidden="true">MERN</div>
+
+    <div class="hero-layout">
+      
+      <div class="hero-left">
+        <div class="hero-tag reveal-fade">Full Stack · MERN · 2026</div>
+        <h1 class="hero-name reveal-fade" id="heroName">
+          <span class="name-part">Hriday</span>
+          <span class="name-part italic">S Kumar</span>
+        </h1>
+        <p class="hero-role reveal-fade">
+          <span id="typedRole"></span><span class="cursor">|</span>
+        </p>
+      </div>
+
+      <div class="hero-right reveal-fade">
+        <p class="hero-desc">
+          I create modern, responsive websites and smooth UI experiences, along with static and dynamic web apps and software applications with backend integration.
+        </p>
+        <div class="hero-cta">
+          <a href="#projects" class="btn-primary">See my work <i class="bi bi-arrow-right"></i></a>
+          <a href="#contact" class="btn-ghost">Let's talk</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hs-item"><strong>4+</strong><span>Months Exp</span></div>
+          <div class="hs-div"></div>
+          <div class="hs-item"><strong>3+</strong><span>Projects</span></div>
+          <div class="hs-div"></div>
+          <div class="hs-item"><strong>8.6</strong><span>CGPA</span></div>
+        </div>
       </div>
     </div>
 
-    <div class="scroll-hint">
-      <div class="scroll-line"></div>
-      <span>Scroll</span>
+    <div class="hero-scroll-line" aria-hidden="true">
+      <div class="hsl-track"><div class="hsl-progress"></div></div>
+      <span>Scroll to explore</span>
+    </div>
+
+    <div class="hero-socials reveal-fade">
+      <a href="https://github.com/hridayyh" target="_blank" rel="noopener" aria-label="GitHub"><i class="bi bi-github"></i></a>
+      <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+      <a href="https://www.instagram.com/hridayyh" target="_blank" rel="noopener" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
     </div>
   </section>
 
-  <!-- About -->
-  <section id="about">
-    <div class="reveal">
-      <div class="section-label">About Me</div>
-      <h2 class="section-heading">Passionate <em>MERN Stack</em> Developer</h2>
-    </div>
+  <!-- ═══════════════ ABOUT ═══════════════ -->
+  <section id="about" class="section about-section">
+    <div class="sec-eyebrow reveal-up">About Me</div>
 
-    <div class="about-layout">
-      <div class="about-text-content reveal reveal-delay-1">
+    <div class="about-grid">
+      <div class="about-headline reveal-up">
+        <h2>Passionate<br><em>developer</em></h2>
+      </div>
+
+      <div class="about-body reveal-up">
         <p>
           I'm a passionate web developer who loves building modern, responsive websites and dynamic web applications.
-          I enjoy creating smooth user experiences and robust software solutions.
+          I enjoy creating smooth user experiences and robust software solutions built to scale.
         </p>
         <p>
-          I work with HTML, CSS, JavaScript, React, Node.js and modern web technologies.
-          I specialize in full-stack development and seamless backend integration.
+          My stack centers around React, Node.js, Express, and MongoDB — the MERN combination that lets me go from database design to polished UI without switching gears.
         </p>
-      </div>
-
-      <div class="about-visual reveal reveal-delay-2">
-        <div class="about-stat-row">
-          <div class="about-stat"><span class="num">4+</span><span class="lbl">Months Exp</span></div>
-          <div class="about-stat"><span class="num">3+</span><span class="lbl">Projects</span></div>
-          <div class="about-stat"><span class="num">6+</span><span class="lbl">Skills</span></div>
+        <div class="about-actions">
+          <a href="#contact" class="btn-primary">Hire Me <i class="bi bi-send-fill"></i></a>
+          <a href="view.cv.pdf" target="_blank" rel="noopener" class="btn-ghost"><i class="bi bi-file-earmark-person"></i> Resume</a>
         </div>
       </div>
 
-      <div class="about-cta reveal reveal-delay-3">
-          <a href="#contact" class="btn btn-primary"><span>Hire Me</span> <i class="bi bi-send-fill"></i></a>
-          <a href="view.cv.pdf" id="viewResumeBtn" class="btn btn-secondary" target="_blank" rel="noopener noreferrer"><i class="bi bi-file-earmark-arrow-down-fill"></i> View Resume</a>
+      <div class="about-marquee-wrap reveal-up" aria-hidden="true">
+        <div class="marquee-track">
+          <span>React · Node.js · MongoDB · Express · JavaScript · HTML · CSS · Full Stack · MERN ·&nbsp;</span>
+          <span>React · Node.js · MongoDB · Express · JavaScript · HTML · CSS · Full Stack · MERN ·&nbsp;</span>
+          <span>React · Node.js · MongoDB · Express · JavaScript · HTML · CSS · Full Stack · MERN ·&nbsp;</span>
+          <span>React · Node.js · MongoDB · Express · JavaScript · HTML · CSS · Full Stack · MERN ·&nbsp;</span>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Experience -->
-  <section id="experience">
-    <div class="reveal">
-      <div class="section-label">Work History</div>
-      <h2 class="section-heading"><em>Experience</em></h2>
-    </div>
+  <!-- ═══════════════ EXPERIENCE ═══════════════ -->
+  <section id="experience" class="section exp-section">
+    <div class="sec-eyebrow reveal-up">Work History</div>
 
-    <div class="reveal reveal-delay-1">
-      <div class="exp-card">
-        <div class="exp-top">
-          <div class="exp-title-block">
-            <div class="exp-badge">Internship</div>
-            <div class="exp-role">Full Stack / MERN Stack Developer</div>
-            <div class="exp-company">
-              <span><i class="bi bi-buildings-fill"></i> Kakunje Software Pvt Limited</span>
-              <span><i class="bi bi-geo-alt-fill"></i> Hybrid</span>
-            </div>
+    <div class="exp-layout">
+      <h2 class="exp-heading reveal-up">Experience</h2>
+
+      <div class="exp-card reveal-up">
+        <div class="exp-meta">
+          <span class="exp-badge">Internship</span>
+          <span class="exp-date">Feb 2026 — May 2026</span>
+        </div>
+        <div class="exp-main">
+          <h3 class="exp-role">Full Stack / MERN Stack Developer</h3>
+          <div class="exp-company"><i class="bi bi-buildings"></i> Kakunje Software Pvt Limited &ensp;·&ensp; <i class="bi bi-geo-alt"></i> Hybrid</div>
+          <ul class="exp-list">
+            <li>Designed and developed scalable web applications utilizing the MERN stack.</li>
+            <li>Collaborated with team members to build RESTful APIs and integrate MongoDB databases.</li>
+            <li>Implemented responsive frontend interfaces ensuring an optimal user experience.</li>
+          </ul>
+          <div class="exp-tags">
+            <span>React.js</span><span>Node.js</span><span>Express.js</span><span>MongoDB</span>
           </div>
-          <div class="exp-period"><i class="bi bi-calendar-event"></i> Feb 2026 — May 2026</div>
         </div>
-        <ul class="exp-list">
-          <li>Designed and developed scalable web applications utilizing the MERN stack.</li>
-          <li>Collaborated with team members to build RESTful APIs and integrate MongoDB databases.</li>
-          <li>Implemented responsive frontend interfaces ensuring an optimal user experience.</li>
-        </ul>
-        <div class="tech-tags">
-          <span class="tech-tag">React.js</span>
-          <span class="tech-tag">Node.js</span>
-          <span class="tech-tag">Express.js</span>
-          <span class="tech-tag">MongoDB</span>
-        </div>
+        <div class="exp-number" aria-hidden="true">01</div>
       </div>
     </div>
   </section>
 
-  <!-- Education -->
-  <section id="education">
-    <div class="reveal">
-      <div class="section-label">Academic</div>
-      <h2 class="section-heading"><em>Education</em></h2>
-    </div>
+  <!-- ═══════════════ EDUCATION ═══════════════ -->
+  <section id="education" class="section edu-section">
+    <div class="sec-eyebrow reveal-up">Academic</div>
 
-    <div class="reveal reveal-delay-1">
-      <div class="edu-card">
-        <div>
-          <div class="edu-badge">Graduation</div>
-          <div class="edu-name">Shree Devi Institute Of Technology</div>
-          <div class="edu-course"><i class="bi bi-journal-bookmark-fill"></i> Course: Information Science &amp; Engineering</div>
+    <div class="edu-layout">
+      <h2 class="edu-heading reveal-up">Education</h2>
+
+      <div class="edu-card reveal-up">
+        <div class="edu-top">
+          <span class="edu-badge">B.E. Graduation</span>
+          <div class="edu-cgpa">
+            <span class="cgpa-num">8.6</span>
+            <span class="cgpa-label">CGPA</span>
+          </div>
         </div>
-        <div class="edu-grade">
-        <div class="grade-num">8.6</div>
-          <div class="grade-label">CGPA</div>
+        <h3 class="edu-name">Shree Devi Institute Of Technology</h3>
+        <p class="edu-course"><i class="bi bi-journal-bookmark-fill"></i> Information Science &amp; Engineering</p>
+        <div class="edu-bar-wrap"><div class="edu-bar" style="--cgpa-w: 86%"></div></div>
+        <div class="edu-bar-label"><span>0</span><span>10</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ SKILLS ═══════════════ -->
+  <section id="skills" class="section skills-section">
+    <div class="sec-eyebrow reveal-up">Expertise</div>
+    <h2 class="skills-heading reveal-up">Skills</h2>
+
+    <div class="skills-grid">
+      <div class="skill-card reveal-up" style="--i:0">
+        <i class="devicon-html5-plain skill-icon"></i>
+        <div class="sk-info">
+          <strong>HTML5</strong>
+          <span>Markup &amp; Semantics</span>
+        </div>
+        <div class="sk-bar"><div class="sk-fill" style="--w:95%"></div></div>
+      </div>
+      <div class="skill-card reveal-up" style="--i:1">
+        <i class="devicon-css3-plain skill-icon"></i>
+        <div class="sk-info">
+          <strong>CSS3</strong>
+          <span>Styling &amp; Animations</span>
+        </div>
+        <div class="sk-bar"><div class="sk-fill" style="--w:90%"></div></div>
+      </div>
+      <div class="skill-card reveal-up" style="--i:2">
+        <i class="devicon-javascript-plain skill-icon"></i>
+        <div class="sk-info">
+          <strong>JavaScript</strong>
+          <span>ES6+ &amp; DOM APIs</span>
+        </div>
+        <div class="sk-bar"><div class="sk-fill" style="--w:88%"></div></div>
+      </div>
+      <div class="skill-card reveal-up" style="--i:3">
+        <i class="devicon-react-original skill-icon"></i>
+        <div class="sk-info">
+          <strong>React.js</strong>
+          <span>Components &amp; Hooks</span>
+        </div>
+        <div class="sk-bar"><div class="sk-fill" style="--w:85%"></div></div>
+      </div>
+      <div class="skill-card reveal-up" style="--i:4">
+        <i class="devicon-nodejs-plain skill-icon"></i>
+        <div class="sk-info">
+          <strong>Node.js</strong>
+          <span>Server &amp; APIs</span>
+        </div>
+        <div class="sk-bar"><div class="sk-fill" style="--w:82%"></div></div>
+      </div>
+      <div class="skill-card reveal-up" style="--i:5">
+        <i class="devicon-mongodb-plain skill-icon"></i>
+        <div class="sk-info">
+          <strong>MongoDB</strong>
+          <span>Database &amp; ODM</span>
+        </div>
+        <div class="sk-bar"><div class="sk-fill" style="--w:80%"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ PROJECTS ═══════════════ -->
+  <section id="projects" class="section proj-section">
+    <div class="sec-eyebrow reveal-up">Selected Work</div>
+    <h2 class="proj-heading reveal-up">Projects</h2>
+
+    <div class="proj-list">
+
+      <div class="proj-item reveal-up">
+        <div class="proj-left">
+          <span class="proj-num">01</span>
+          <span class="proj-tag"><i class="bi bi-mortarboard-fill"></i> Final Year</span>
+        </div>
+        <div class="proj-right">
+          <h3>AI Chatbot For Mental Health Treatment</h3>
+          <p>An AI-powered chatbot built to provide supportive conversations, smart interaction, and mental health assistance using modern NLP technologies and a compassionate UX.</p>
+          <div class="proj-tech">AI · NLP · Full Stack · React</div>
         </div>
       </div>
+
+      <div class="proj-item reveal-up">
+        <div class="proj-left">
+          <span class="proj-num">02</span>
+          <span class="proj-tag"><i class="bi bi-briefcase-fill"></i> Client</span>
+        </div>
+        <div class="proj-right">
+          <h3>ERP &amp; Inventory System</h3>
+          <p>A full-stack ERP and inventory management system for Hardik Herbals — managing stock, billing, products, and business operations in a single dashboard.</p>
+          <div class="proj-tech">MERN · REST API · Dashboard</div>
+        </div>
+      </div>
+
+      <div class="proj-item reveal-up">
+        <div class="proj-left">
+          <span class="proj-num">03</span>
+          <span class="proj-tag"><i class="bi bi-folder2-open"></i> Mini</span>
+        </div>
+        <div class="proj-right">
+          <h3>Book Store</h3>
+          <p>A modern online bookstore with responsive layouts, organized book sections, filters, and a smooth browsing experience from landing to checkout.</p>
+          <div class="proj-tech">HTML · CSS · JavaScript</div>
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <!-- Skills -->
-  <section id="skills">
-    <div class="reveal">
-      <div class="section-label">Expertise</div>
-      <h2 class="section-heading"><em>Skills</em></h2>
-    </div>
-
-    <div class="skills-grid reveal reveal-delay-1">
-      <div class="skill-tile"><span class="skill-ico"><i class="devicon-html5-plain"></i></span><span class="skill-name">HTML5</span></div>
-      <div class="skill-tile"><span class="skill-ico"><i class="devicon-css3-plain"></i></span><span class="skill-name">CSS3</span></div>
-      <div class="skill-tile"><span class="skill-ico"><i class="devicon-javascript-plain"></i></span><span class="skill-name">JavaScript</span></div>
-      <div class="skill-tile"><span class="skill-ico"><i class="devicon-react-original"></i></span><span class="skill-name">React.js</span></div>
-      <div class="skill-tile"><span class="skill-ico"><i class="devicon-nodejs-plain"></i></span><span class="skill-name">Node.js</span></div>
-      <div class="skill-tile"><span class="skill-ico"><i class="devicon-mongodb-plain"></i></span><span class="skill-name">MongoDB</span></div>
-    </div>
-  </section>
-
-  <!-- Projects -->
-  <section id="projects">
-    <div class="reveal">
-      <div class="section-label">Work</div>
-      <h2 class="section-heading">Selected <em>Projects</em></h2>
-    </div>
-
-    <div class="projects-grid">
-      <div class="project-tile reveal reveal-delay-1">
-        <div class="project-num">01</div>
-        <span class="project-cat"><i class="bi bi-mortarboard-fill"></i> Final Year Project</span>
-        <h3 class="project-name">AI Chatbot For Mental Health Treatment</h3>
-        <p class="project-desc">An AI-powered chatbot created to provide supportive conversations, smart interaction and mental health assistance using modern technologies.</p>
-      </div>
-
-      <div class="project-tile reveal reveal-delay-2">
-        <div class="project-num">02</div>
-        <span class="project-cat"><i class="bi bi-briefcase-fill"></i> Client Project</span>
-        <h3 class="project-name">ERP &amp; Inventory System</h3>
-        <p class="project-desc">A full-stack ERP and inventory management system developed for Hardik Herbals to manage stock, billing, products and business operations efficiently.</p>
-      </div>
-
-      <div class="project-tile reveal reveal-delay-3">
-        <div class="project-num">03</div>
-        <span class="project-cat"><i class="bi bi-folder2-open"></i> Mini Project</span>
-        <h3 class="project-name">Book Store</h3>
-        <p class="project-desc">A modern online bookstore website designed with responsive layouts, organized book sections and smooth user experience for browsing books.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <section id="contact">
-    <div class="reveal">
-      <div class="section-label">Get In Touch</div>
-      <h2 class="section-heading">Contact <em>Me</em></h2>
-    </div>
+  <!-- ═══════════════ CONTACT ═══════════════ -->
+  <section id="contact" class="section contact-section">
+    <div class="sec-eyebrow reveal-up">Get In Touch</div>
 
     <div class="contact-layout">
-      <div class="contact-info reveal reveal-delay-1">
-        <h3>Let's work <em>together</em></h3>
-        <div class="contact-divider"></div>
-        <p>
-          Feel free to reach out for collaborations, project inquiries, or just to say hi.
-          I'm always open to discussing new projects and creative ideas.
-        </p>
+      <div class="contact-left reveal-up">
+        <h2>Let's build<br><em>something</em><br>together.</h2>
+        <p>Open to new opportunities, collaborations, or just a good conversation about tech.</p>
+        <div class="contact-socials">
+          <a href="https://github.com/hridayyh" target="_blank" rel="noopener"><i class="bi bi-github"></i> GitHub</a>
+          <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/" target="_blank" rel="noopener"><i class="bi bi-linkedin"></i> LinkedIn</a>
+          <a href="https://www.instagram.com/hridayyh" target="_blank" rel="noopener"><i class="bi bi-instagram"></i> Instagram</a>
+        </div>
       </div>
 
-      <div class="contact-form-wrap reveal reveal-delay-2">
-        <div class="contact-connect-box" id="lets-connect">
-          <h4>Let's <em>Connect</em></h4>
-          <div class="hero-social">
-            <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/" target="_blank" rel="noopener noreferrer" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
-            <a href="https://github.com/hridayyh" target="_blank" rel="noopener noreferrer" title="GitHub"><i class="bi bi-github"></i></a>
-            <a href="https://www.instagram.com/hridayyh?igsh=cHZzM3lvdWIzOGZr" target="_blank" rel="noopener noreferrer" title="Instagram"><i class="bi bi-instagram"></i></a>
+      <div class="contact-right reveal-up">
+        <div class="contact-card">
+          <div class="cc-icon"><i class="bi bi-envelope-heart-fill"></i></div>
+          <h3>Start a conversation</h3>
+          <p>Reach out on any platform — I typically reply within a day or two. Whether it's a project inquiry or just a hello, I'd love to hear from you.</p>
+          <div class="cc-links">
+            <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/" target="_blank" rel="noopener" class="btn-primary">Message on LinkedIn <i class="bi bi-arrow-right"></i></a>
+            <a href="https://github.com/hridayyh" target="_blank" rel="noopener" class="btn-ghost"><i class="bi bi-github"></i> GitHub</a>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Resume Modal -->
-  <div id="resumeModal" class="modal">
-    <div class="modal-box resume-modal-box">
-      <div class="resume-modal-header">
-        <h3 class="resume-modal-title">Resume Preview</h3>
-        <div class="resume-modal-actions">
-          <button class="resume-modal-refresh" id="refreshPdfBtn" title="Refresh" style="display: none;"><i class="bi bi-arrow-clockwise"></i></button>
-          <a href="view.cv.pdf" download="Hriday_Resume.pdf" class="resume-modal-download" title="Download"><i class="bi bi-download"></i></a>
-          <button class="resume-modal-close" id="closeResumeModal" title="Close"><i class="bi bi-x-lg"></i></button>
-        </div>
-      </div>
-      <div class="resume-modal-body">
-        <div id="pdfLoader" class="pdf-loader">
-          <div class="loader-status">Loading Document...</div>
-          <div class="loader-bar-wrap">
-            <div class="loader-bar-progress" id="pdfLoaderProgress"></div>
-          </div>
-        </div>
-        <iframe data-src="view.cv.pdf" class="resume-iframe" title="Hriday Resume"></iframe>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast -->
-  <div id="toast" class="toast">
-    <div class="toast-content">
-      <i class="bi bi-exclamation-circle-fill"></i>
-      <span id="toastMessage">Please fill all fields correctly!</span>
-    </div>
-    <button class="toast-close" id="toastClose">
-      <svg class="toast-timer-svg" viewBox="0 0 34 34">
-        <circle class="toast-timer-bg" cx="17" cy="17" r="15"></circle>
-        <circle class="toast-timer-progress" cx="17" cy="17" r="15"></circle>
-      </svg>
-      <i class="bi bi-x"></i>
-    </button>
-  </div>
-
-  <!-- Scroll Top -->
-  <a href="#home" id="scrollTopBtn" class="scroll-top-btn"><i class="bi bi-arrow-up"></i></a>
-
   <!-- Footer -->
-  <footer>
+  <footer class="footer">
     <div class="footer-inner">
-      <span class="footer-logo">Hriday.</span>
-      <p class="footer-copy">&copy; 2026 Hriday S Kumar. All Rights Reserved.</p>
+      <span class="footer-logo">Hriday<span>.</span></span>
+      <p>&copy; 2026 Hriday S Kumar. All Rights Reserved.</p>
+      <div class="footer-socials">
+        <a href="https://github.com/hridayyh" target="_blank" rel="noopener" aria-label="GitHub"><i class="bi bi-github"></i></a>
+        <a href="https://www.linkedin.com/in/hriday-%E2%80%8Es-kumar-ab62a5256/" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+        <a href="https://www.instagram.com/hridayyh" target="_blank" rel="noopener" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+      </div>
     </div>
   </footer>
 

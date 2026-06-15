@@ -9,82 +9,279 @@ if (initialHash) {
   window.history.replaceState(null, null, window.location.pathname);
 }
 
-const preloader = document.getElementById('preloader');
-const loaderProgress = document.getElementById('loaderProgress');
-const loaderStatus = document.getElementById('loaderStatus');
+(() => {
+  'use strict';
 
-let progress = 0;
-let isLoaded = document.readyState === 'complete';
-let isOnline = navigator.onLine;
+  // ── Preloader ────────────────────────────────
+  const preloader = document.getElementById('preloader');
+  const preFill   = document.getElementById('preFill');
+  const prePct    = document.getElementById('prePct');
+  let prog = 0;
+  let loaded = document.readyState === 'complete';
+  const startTime = Date.now();
 
-function updateLoaderStatus() {
-  if (!loaderStatus) return;
-  const displayProgress = Math.floor(progress);
+  const kickoff = () => {
+    if (preloader) {
+      preloader.classList.add('hidden');
+      setTimeout(() => preloader.style.display = 'none', 700);
+    }
+    document.querySelectorAll('.hero .reveal-fade').forEach((el, i) => { setTimeout(() => el.classList.add('in'), i * 120); });
+    if (typeof startTypewriter === 'function') startTypewriter();
+    
+    if (initialHash) {
+      try {
+        const target = document.getElementById(decodeURIComponent(initialHash.substring(1)));
+        if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 200);
+      } catch (e) {}
+    }
+  };
+
+  // Function to calculate accurate progress based on actual assets
+  const calculateProgress = () => {
+    if (loaded) return 100;
+    let p = 0;
+    
+    // 1. Document Readiness (up to 40%)
+    if (document.readyState === 'loading') p += 10;
+    else if (document.readyState === 'interactive') p += 40;
+    else if (document.readyState === 'complete') return 100;
+
+    // 2. Image Loading (up to 55%)
+    const images = Array.from(document.images);
+    if (images.length > 0) {
+      const loadedImages = images.filter(img => img.complete).length;
+      p += (loadedImages / images.length) * 55;
+    } else {
+      p += 55; // No images to load
+    }
+    
+    return Math.min(p, 95);
+  };
+
+  let simulatedProg = 0;
+  const tick = setInterval(() => {
+    let target = calculateProgress();
+    
+    // Add a gentle simulated crawl for slow networks so it doesn't freeze visually
+    if (!loaded) {
+      simulatedProg += (95 - simulatedProg) * 0.005;
+      target = Math.max(target, simulatedProg);
+    }
+    
+    // If network is full speed and page is loaded, skip the ease and jump straight to 100
+    if (loaded) {
+      prog = 100;
+    } else {
+      prog += (target - prog) * 0.15;
+    }
+
+    if (preFill) preFill.style.width = prog + '%';
+    if (prePct) prePct.textContent = Math.floor(prog);
+    
+    // Completion depends ONLY on 'loaded', allowing cached offline pages to open
+    if (prog >= 100 && loaded) {
+      clearInterval(tick);
+
+      const elapsed = Date.now() - startTime;
+
+      if (elapsed < 600) {
+        // Fast load: skip delays and inner fade-outs, transition straight to website
+        kickoff();
+      } else {
+        // Slow load: gracefully fade out the inner numbers first before hiding background
+        const preInner = preloader ? preloader.querySelector('.pre-inner') : null;
+        if (preInner) {
+          preInner.style.transition = 'opacity 0.3s ease';
+          preInner.style.opacity = '0';
+        }
+        setTimeout(kickoff, 350);
+      }
+    }
+  }, 50);
+
+  window.addEventListener('load', () => { loaded = true; });
+  // Ultimate fallback: 15s timeout to prevent infinite hanging on bad connections
+  setTimeout(() => { loaded = true; }, 15000);
   
-  if (!isOnline) {
-    const offlineTexts = [
-      "Connection lost...", 
-      "Waiting for network...", 
-      "Trying to reconnect...", 
-      "Check your internet..."
-    ];
-    const textIdx = Math.floor(Date.now() / 2000) % offlineTexts.length;
-    loaderStatus.textContent = `${offlineTexts[textIdx]} ${displayProgress}%`;
-  } else {
-    if (progress >= 100) loaderStatus.textContent = `Here you go!`;
-    else if (progress > 85) loaderStatus.textContent = `Almost there... ${displayProgress}%`;
-    else if (progress > 55) loaderStatus.textContent = `Loading interface... ${displayProgress}%`;
-    else if (progress > 25) loaderStatus.textContent = `Loading assets... ${displayProgress}%`;
-    else loaderStatus.textContent = `Connecting... ${displayProgress}%`;
-  }
-}
-
-const loaderInterval = setInterval(() => {
-  if (!isLoaded || !isOnline) {
-    let increment = (95 - progress) * 0.05;
-    if (increment < 0.1) increment = 0.1;
-    progress += increment;
-    if (progress > 95) progress = 95;
-  } else {
-    progress = 100;
-  }
+  window.addEventListener('offline', () => { isOnline = false; });
+  window.addEventListener('online', () => { 
+    isOnline = true; 
+    if (document.readyState === 'complete') loaded = true;
+  });
   
-  if (loaderProgress) loaderProgress.style.width = progress + '%';
-  updateLoaderStatus();
+  // ── Typewriter ────────────────────────────────
+  const roles = [
+    'Full Stack Developer',
+    'MERN Stack Engineer',
+    'React Developer',
+    'Node.js Backend Dev',
+  ];
+  let rIdx = 0, cIdx = 0, typing = true;
+  const typedEl = document.getElementById('typedRole');
 
-  if (progress >= 100 && isLoaded && isOnline) {
-    clearInterval(loaderInterval);
-    setTimeout(() => { // Wait 0.5 sec as requested
-      if (preloader) { preloader.classList.add('hidden'); setTimeout(() => preloader.style.display = 'none', 600); }
-    }, 500);
+  function startTypewriter() {
+    if (!typedEl) return;
+    typeStep();
   }
-}, 100);
 
-let isPreloaderFinished = false;
-const finishPreloader = () => {
-  if (isPreloaderFinished) return;
-  isPreloaderFinished = true;
-  isLoaded = true;
-};
-
-window.addEventListener('load', () => {
-  finishPreloader();
-  if (initialHash) {
-    try {
-      const target = document.getElementById(decodeURIComponent(initialHash.substring(1)));
-      if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 500);
-    } catch (e) {}
+  function typeStep() {
+    const current = roles[rIdx];
+    if (typing) {
+      typedEl.textContent = current.slice(0, cIdx + 1);
+      cIdx++;
+      if (cIdx === current.length) {
+        typing = false;
+        setTimeout(typeStep, 1800);
+        return;
+      }
+      setTimeout(typeStep, 70);
+    } else {
+      typedEl.textContent = current.slice(0, cIdx - 1);
+      cIdx--;
+      if (cIdx === 0) {
+        typing = true;
+        rIdx = (rIdx + 1) % roles.length;
+        setTimeout(typeStep, 300);
+        return;
+      }
+      setTimeout(typeStep, 40);
+    }
   }
-});
-// Increased safety fallback to 15 seconds so slow connections have enough time to load
-setTimeout(finishPreloader, 15000);
 
-window.addEventListener('offline', () => { isOnline = false; updateLoaderStatus(); });
-window.addEventListener('online', () => { 
-  isOnline = true; 
-  updateLoaderStatus();
-  if (document.readyState === 'complete') isLoaded = true;
-});
+  // ── Top Bar scroll ────────────────────────────
+  const topbar = document.getElementById('topbar');
+  let scrollTicking = false;
+
+  const onScroll = () => {
+    if (!scrollTicking) {
+      requestAnimationFrame(() => {
+        topbar.classList.toggle('scrolled', window.scrollY > 80);
+        updateScrollProgress();
+        updateSideNav();
+        scrollTicking = false;
+      });
+      scrollTicking = true;
+    }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // ── Scroll progress in hero ───────────────────
+  const hslProgress = document.querySelector('.hsl-progress');
+  function updateScrollProgress() {
+    const max = document.body.scrollHeight - window.innerHeight;
+    const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+    if (hslProgress) hslProgress.style.width = pct + '%';
+  }
+
+  // ── Top nav active state ──────────────────────
+  const sections = document.querySelectorAll('section[id]');
+  const tbnLinks = document.querySelectorAll('.tbn-link');
+
+  function updateSideNav() {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 200) current = s.id;
+    });
+    tbnLinks.forEach(l => {
+      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+    });
+  }
+
+  // ── Mobile Drawer ─────────────────────────────
+  const tbMenu        = document.getElementById('tbMenu');
+  const drawer        = document.getElementById('drawer');
+  const drawerClose   = document.getElementById('drawerClose');
+  const drawerOverlay = document.getElementById('drawerOverlay');
+
+  const openDrawer = () => {
+    drawer.classList.add('open');
+    drawerOverlay.classList.add('show');
+    tbMenu.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  const closeDrawer = () => {
+    drawer.classList.remove('open');
+    drawerOverlay.classList.remove('show');
+    tbMenu.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  tbMenu.addEventListener('click', () => {
+    drawer.classList.contains('open') ? closeDrawer() : openDrawer();
+  });
+  drawerClose.addEventListener('click', closeDrawer);
+  drawerOverlay.addEventListener('click', closeDrawer);
+
+  document.querySelectorAll('.dn-link').forEach(link => {
+    link.addEventListener('click', closeDrawer);
+  });
+
+  // ── Intersection Observer: reveal-up ──────────
+  const revealEls = document.querySelectorAll('.reveal-up');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        observer.unobserve(e.target);
+        setTimeout(() => e.target.style.willChange = 'auto', 1200);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+  revealEls.forEach(el => observer.observe(el));
+
+  // ── Skill bar animate on enter ────────────────
+  const skillCards = document.querySelectorAll('.skill-card');
+  const skillObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('animate'), parseInt(e.target.style.getPropertyValue('--i') || 0) * 80);
+        skillObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  skillCards.forEach(c => skillObs.observe(c));
+
+  // ── Edu bar animate on enter ──────────────────
+  const eduBar = document.querySelector('.edu-bar');
+  if (eduBar) {
+    const eduObs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setTimeout(() => eduBar.classList.add('animate'), 300);
+        eduObs.disconnect();
+      }
+    }, { threshold: 0.4 });
+    eduObs.observe(eduBar);
+  }
+
+  // ── Smooth hash scroll (clean URL) ───────────
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const hash = a.getAttribute('href');
+      const target = document.querySelector(hash);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+        if (window.history.pushState) {
+          window.history.pushState(null, null, hash);
+        }
+      }
+    });
+  });
+
+  // ── Logo scroll to top ────────────────────────
+  document.querySelector('.tb-logo')?.addEventListener('click', e => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.history.pushState) window.history.pushState(null, null, ' ');
+  });
+
+  // ── Keyboard accessibility for drawer ────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+  });
+
+})();
 
 // Fast-click & smooth scroll for Logo
 const logo = document.querySelector('.logo');
@@ -127,21 +324,25 @@ const toggleSidebar = (e) => {
   menuBtn.classList.toggle('open');
 };
 
-sidebarClose.addEventListener('click', closeSidebar);
-sidebarClose.addEventListener('touchstart', closeSidebar, { passive: false });
+if (sidebarClose) {
+  sidebarClose.addEventListener('click', closeSidebar);
+  sidebarClose.addEventListener('touchstart', closeSidebar, { passive: false });
+}
 
-menuBtn.addEventListener('click', toggleSidebar);
-menuBtn.addEventListener('touchstart', toggleSidebar, { passive: false });
+if (menuBtn) {
+  menuBtn.addEventListener('click', toggleSidebar);
+  menuBtn.addEventListener('touchstart', toggleSidebar, { passive: false });
+}
 
 // Performance: Using Event Delegation instead of multiple memory-heavy listeners
-navLinks.addEventListener('click', e => {
+if (navLinks) navLinks.addEventListener('click', e => {
   if (e.target.closest('a')) {
     navLinks.classList.remove('active');
     menuBtn.classList.remove('open');
   }
 });
 const handleOutsideInteraction = e => {
-  if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
+  if (navLinks && menuBtn && navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
     navLinks.classList.remove('active');
     menuBtn.classList.remove('open');
   }
@@ -152,8 +353,8 @@ document.addEventListener('touchstart', handleOutsideInteraction, { passive: tru
 // Ensure back button correctly scrolls to the previous section
 window.addEventListener('hashchange', () => {
   // Close mobile menu if it is open while navigating back
-  navLinks.classList.remove('active');
-  menuBtn.classList.remove('open');
+  if (navLinks) navLinks.classList.remove('active');
+  if (menuBtn) menuBtn.classList.remove('open');
 
   setTimeout(() => {
     const hash = window.location.hash;
@@ -185,35 +386,28 @@ const revealObserver = new IntersectionObserver((entries) => {
 revealEls.forEach(el => revealObserver.observe(el));
 
 // Theme
-const themeToggleBtn = document.getElementById('themeToggleBtn');
-const themeDropdown = document.getElementById('themeDropdown');
 const themeOptions = document.querySelectorAll('.theme-option');
-const currentThemeIcon = document.getElementById('currentThemeIcon');
-let currentTheme = sessionStorage.getItem('theme') || 'system';
+let currentTheme = localStorage.getItem('theme') || 'system';
 
 function updateThemeUI(theme) {
-  if (theme === 'light') { document.documentElement.classList.add('light-theme'); currentThemeIcon.className = 'bi bi-sun-fill'; }
-  else if (theme === 'dark') { document.documentElement.classList.remove('light-theme'); currentThemeIcon.className = 'bi bi-moon-stars-fill'; }
+  if (theme === 'light') { document.documentElement.classList.add('light-theme'); }
+  else if (theme === 'dark') { document.documentElement.classList.remove('light-theme'); }
   else {
     document.documentElement.classList.toggle('light-theme', window.matchMedia('(prefers-color-scheme: light)').matches);
-    currentThemeIcon.className = 'bi bi-display';
   }
-  themeOptions.forEach(opt => opt.classList.toggle('active', opt.dataset.theme === theme));
+  if (themeOptions) themeOptions.forEach(opt => opt.classList.toggle('active', opt.dataset.theme === theme));
 }
 updateThemeUI(currentTheme);
 window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (currentTheme === 'system') updateThemeUI('system'); });
-themeToggleBtn.addEventListener('click', e => { e.stopPropagation(); themeDropdown.classList.toggle('show'); });
+
 themeOptions.forEach(opt => {
-  opt.addEventListener('click', e => { 
-    e.stopPropagation(); 
-    currentTheme = opt.dataset.theme; 
-    if (currentTheme === 'system') sessionStorage.removeItem('theme');
-    else sessionStorage.setItem('theme', currentTheme);
-    updateThemeUI(currentTheme); 
-    themeDropdown.classList.remove('show'); 
+  opt.addEventListener('click', e => {
+    currentTheme = opt.dataset.theme;
+    if (currentTheme === 'system') localStorage.removeItem('theme');
+    else localStorage.setItem('theme', currentTheme);
+    updateThemeUI(currentTheme);
   });
 });
-document.addEventListener('click', e => { if (!themeToggleBtn.contains(e.target) && !themeDropdown.contains(e.target)) themeDropdown.classList.remove('show'); });
 
 // Toast
 const toast = document.getElementById('toast');
@@ -228,32 +422,7 @@ function showToast(msg) {
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => toast.classList.remove('show-toast'), 2500);
 }
-toastClose.addEventListener('click', () => { toast.classList.remove('show-toast'); clearTimeout(toastTimeout); });
-
-// Hero Space Particles
-const heroParticles = document.getElementById('heroParticles');
-if (heroParticles) {
-  const particleCount = 20; // Reduced count to prevent lag
-  const fragment = document.createDocumentFragment(); // Performance: Batches DOM rendering in memory
-  for (let i = 0; i < particleCount; i++) {
-    const particle = document.createElement('div');
-    particle.className = 'particle';
-    
-    // Randomize size, position, duration, and opacity
-    const size = Math.random() * 2 + 1;
-    particle.style.width = `${size}px`;
-    particle.style.height = `${size}px`;
-    particle.style.left = `${Math.random() * 100}%`;
-    particle.style.top = `${Math.random() * 100}%`;
-    
-    particle.style.setProperty('--p-dur', `${Math.random() * 6 + 4}s`);
-    particle.style.animationDelay = `${Math.random() * 5}s`;
-    particle.style.setProperty('--p-opac', `${Math.random() * 0.5 + 0.2}`);
-    
-    fragment.appendChild(particle);
-  }
-  heroParticles.appendChild(fragment);
-}
+if (toastClose) toastClose.addEventListener('click', () => { toast.classList.remove('show-toast'); clearTimeout(toastTimeout); });
 
 // --- Resume PDF Loader Logic ---
 let pdfLoaderInterval;
@@ -530,8 +699,10 @@ window.addEventListener('scroll', () => {
       const cur = window.scrollY || window.pageYOffset;
       
       // 1. Sticky Header UI
-      if (cur > 80) mainHeader.classList.add('scrolled');
-      else mainHeader.classList.remove('scrolled');
+      if (mainHeader) {
+        if (cur > 80) mainHeader.classList.add('scrolled');
+        else mainHeader.classList.remove('scrolled');
+      }
 
       // 2. Scroll Top Btn UI
       if (aboutSection && scrollTopBtn) {
@@ -548,3 +719,31 @@ window.addEventListener('scroll', () => {
   }
 }, { passive: true });
 })();
+
+// ── Security: Anti-Inspect & Self-XSS Deterrent ───────────────────
+
+// 1. Disable Right-Click (Context Menu)
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// 2. Block DevTools Keyboard Shortcuts (F12, Ctrl+Shift+I/J/C, Ctrl+U)
+document.addEventListener('keydown', (e) => {
+  if (
+    e.key === 'F12' ||
+    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+    (e.ctrlKey && e.key === 'U') ||
+    (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+    (e.metaKey && e.key === 'U')
+  ) {
+    e.preventDefault();
+  }
+});
+
+// 3. Console Self-XSS Warning
+console.log(
+  "%cStop!",
+  "color: #ff3333; font-family: sans-serif; font-size: 4rem; font-weight: bolder; text-shadow: #000 1px 1px;"
+);
+console.log(
+  "%cThis is a browser feature intended for developers. If someone told you to copy-paste something here to enable a feature or 'hack' an account, it is a scam and will give them access to your private information.",
+  "font-family: sans-serif; font-size: 1.25rem; color: #fff;"
+);
