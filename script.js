@@ -70,8 +70,10 @@ const finishPreloader = () => {
 window.addEventListener('load', () => {
   finishPreloader();
   if (initialHash) {
-    const target = document.getElementById(initialHash.substring(1));
-    if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 500);
+    try {
+      const target = document.getElementById(decodeURIComponent(initialHash.substring(1)));
+      if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 500);
+    } catch (e) {}
   }
 });
 // Increased safety fallback to 15 seconds so slow connections have enough time to load
@@ -311,7 +313,9 @@ function loadPdfDocument(e, attempt = 1) {
     }
   } else {
     const baseSrc = iframe.getAttribute('data-src');
-    if (!baseSrc || baseSrc.toLowerCase().trim().startsWith('javascript:')) return; // Security: Prevents protocol injection
+    // Security: Strict allowlist to prevent data:, javascript:, vbscript:, etc. injections
+    const isSafeUrl = /^(https?:\/\/|\/)/i.test(baseSrc.trim()) || /^[a-zA-Z0-9_.-]+\.pdf/i.test(baseSrc.trim());
+    if (!baseSrc || !isSafeUrl) return;
     const base = baseSrc.split('#')[0];
     const hash = baseSrc.split('#')[1] || '';
     const isFile = window.location.protocol === 'file:';
@@ -436,8 +440,9 @@ if (downloadModalBtn) {
     
     const href = this.getAttribute('href');
     
-    // Security: Prevents protocol-level JS injection if href is maliciously mutated
-    if (!href || href.toLowerCase().trim().startsWith('javascript:')) return;
+    // Security: Strict allowlist for download links to prevent malicious mutations
+    const isSafeHref = /^(https?:\/\/|\/)/i.test(href.trim()) || /^[a-zA-Z0-9_.-]+\.pdf/i.test(href.trim());
+    if (!href || !isSafeHref) return;
 
     const filename = this.getAttribute('download');
     const originalHTML = this.innerHTML;
