@@ -4,8 +4,7 @@ if (history.scrollRestoration) {
 }
 window.scrollTo(0, 0);
 
-const initialHash = window.location.hash;
-if (initialHash) {
+if (window.location.hash) {
   window.history.replaceState(null, null, window.location.pathname);
 }
 
@@ -23,17 +22,15 @@ if (initialHash) {
   const kickoff = () => {
     if (preloader) {
       preloader.classList.add('hidden');
-      setTimeout(() => preloader.style.display = 'none', 700);
+      setTimeout(() => preloader.style.display = 'none', 800);
     }
-    document.querySelectorAll('.hero .reveal-fade').forEach((el, i) => { setTimeout(() => el.classList.add('in'), i * 120); });
-    if (typeof startTypewriter === 'function') startTypewriter();
     
-    if (initialHash) {
-      try {
-        const target = document.getElementById(decodeURIComponent(initialHash.substring(1)));
-        if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 200);
-      } catch (e) {}
-    }
+    setTimeout(() => {
+      document.querySelectorAll('.hero .reveal-fade').forEach((el, i) => { setTimeout(() => el.classList.add('in'), i * 120); });
+      if (typeof startTypewriter === 'function') startTypewriter();
+    }, 150);
+    
+    setTimeout(() => window.scrollTo(0, 0), 200); // Force page to stay at the top
   };
 
   // Function to calculate accurate progress based on actual assets
@@ -82,20 +79,19 @@ if (initialHash) {
     if (prog >= 100 && loaded) {
       clearInterval(tick);
 
-      const elapsed = Date.now() - startTime;
+      // Ensure exact 100% visual state
+      if (preFill) preFill.style.width = '100%';
+      if (prePct) prePct.textContent = '100';
 
-      if (elapsed < 600) {
-        // Fast load: skip delays and inner fade-outs, transition straight to website
-        kickoff();
-      } else {
-        // Slow load: gracefully fade out the inner numbers first before hiding background
+      setTimeout(() => {
         const preInner = preloader ? preloader.querySelector('.pre-inner') : null;
         if (preInner) {
-          preInner.style.transition = 'opacity 0.3s ease';
+          preInner.style.animation = 'none'; // Kill delayed CSS animations
+          preInner.style.transition = 'opacity 0.3s ease-out';
           preInner.style.opacity = '0';
         }
-        setTimeout(kickoff, 350);
-      }
+        setTimeout(kickoff, 300);
+      }, 150); // Pause briefly at 100% so the user actually registers it
     }
   }, 50);
 
@@ -192,16 +188,14 @@ if (initialHash) {
   const drawer        = document.getElementById('drawer');
   const drawerOverlay = document.getElementById('drawerOverlay');
 
-  const openDrawer = (e) => {
-    if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
+  const openDrawer = () => {
     drawer.classList.add('open');
     drawerOverlay.classList.add('show');
     tbMenu.classList.add('open');
     topbar.classList.add('drawer-open');
     document.body.style.overflow = 'hidden';
   };
-  const closeDrawer = (e) => {
-    if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
+  const closeDrawer = () => {
     drawer.classList.remove('open');
     drawerOverlay.classList.remove('show');
     tbMenu.classList.remove('open');
@@ -209,15 +203,24 @@ if (initialHash) {
     document.body.style.overflow = '';
   };
 
-  const toggleDrawer = (e) => {
-    drawer.classList.contains('open') ? closeDrawer(e) : openDrawer(e);
+  let menuLock = false;
+  const safeToggleDrawer = (e) => {
+    if (e && e.cancelable) e.preventDefault(); // Instantly stops scroll & prevents ghost click
+    if (menuLock) return; // Ignores duplicate event fires
+    menuLock = true;
+    setTimeout(() => menuLock = false, 300); // 300ms lock
+    drawer.classList.contains('open') ? closeDrawer() : openDrawer();
   };
 
-  tbMenu.addEventListener('click', toggleDrawer);
-  tbMenu.addEventListener('touchstart', toggleDrawer, { passive: false });
+  tbMenu.addEventListener('click', safeToggleDrawer);
+  tbMenu.addEventListener('touchstart', safeToggleDrawer, { passive: false });
 
-  drawerOverlay.addEventListener('click', closeDrawer);
-  drawerOverlay.addEventListener('touchstart', closeDrawer, { passive: false });
+  const safeCloseOverlay = (e) => {
+    if (e && e.cancelable) e.preventDefault(); // Swallows the ghost click completely
+    closeDrawer();
+  };
+  drawerOverlay.addEventListener('click', safeCloseOverlay);
+  drawerOverlay.addEventListener('touchstart', safeCloseOverlay, { passive: false });
 
   document.querySelectorAll('.dn-link').forEach(link => {
     link.addEventListener('click', closeDrawer);
@@ -226,14 +229,21 @@ if (initialHash) {
   // ── Intersection Observer: reveal-up ──────────
   const revealEls = document.querySelectorAll('.reveal-up');
   const observer = new IntersectionObserver((entries) => {
+    let delay = 0;
     entries.forEach(e => {
       if (e.isIntersecting) {
-        e.target.classList.add('in');
+        setTimeout(() => {
+          e.target.classList.add('in');
+          setTimeout(() => {
+            e.target.style.willChange = 'auto';
+            e.target.classList.remove('reveal-up', 'in'); // Clean up DOM so hover transitions are unlocked
+          }, 1200);
+        }, delay);
+        delay += 120; // Beautiful cascading stagger
         observer.unobserve(e.target);
-        setTimeout(() => e.target.style.willChange = 'auto', 1200);
       }
     });
-  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
   revealEls.forEach(el => observer.observe(el));
 
@@ -250,15 +260,17 @@ if (initialHash) {
   skillCards.forEach(c => skillObs.observe(c));
 
   // ── Edu bar animate on enter ──────────────────
-  const eduBar = document.querySelector('.edu-bar');
-  if (eduBar) {
+  const eduBars = document.querySelectorAll('.edu-bar');
+  if (eduBars.length > 0) {
     const eduObs = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setTimeout(() => eduBar.classList.add('animate'), 300);
-        eduObs.disconnect();
-      }
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('animate'), 300);
+          eduObs.unobserve(e.target);
+        }
+      });
     }, { threshold: 0.4 });
-    eduObs.observe(eduBar);
+    eduBars.forEach(bar => eduObs.observe(bar));
   }
 
   // ── Smooth hash scroll (clean URL) ───────────
@@ -277,11 +289,21 @@ if (initialHash) {
   });
 
   // ── Logo scroll to top ────────────────────────
-  document.querySelector('.tb-logo')?.addEventListener('click', e => {
-    e.preventDefault();
+  const tbLogo = document.querySelector('.tb-logo');
+  let logoLock = false;
+  const handleLogoClick = (e) => {
+    if (e && e.cancelable) e.preventDefault();
+    if (logoLock) return;
+    logoLock = true;
+    setTimeout(() => logoLock = false, 300);
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (window.history.pushState) window.history.pushState(null, null, ' ');
-  });
+    if (window.history.pushState) window.history.pushState(null, null, window.location.pathname);
+  };
+  if (tbLogo) {
+    tbLogo.addEventListener('click', handleLogoClick);
+    tbLogo.addEventListener('touchstart', handleLogoClick, { passive: false });
+  }
 
   // ── Keyboard accessibility for drawer ────────
   document.addEventListener('keydown', e => {
@@ -289,73 +311,6 @@ if (initialHash) {
   });
 
 })();
-
-// Fast-click & smooth scroll for Logo
-const logo = document.querySelector('.logo');
-if (logo) {
-  const handleLogoInteraction = (e) => {
-    if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
-    else if (e && e.type === 'click') e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Keeps URL clean by avoiding the #hash jump
-    if (window.history.pushState) window.history.pushState(null, null, window.location.pathname);
-  };
-  logo.addEventListener('click', handleLogoInteraction);
-  logo.addEventListener('touchstart', handleLogoInteraction, { passive: false });
-}
-
-// Sticky header
-const mainHeader = document.getElementById('mainHeader');
-
-// Mobile menu
-const menuBtn = document.getElementById('menuBtn');
-const navLinks = document.getElementById('navLinks');
-const sidebarClose = document.getElementById('sidebarClose');
-let isMenuToggling = false; // State lock to prevent flickering
-
-const closeSidebar = (e) => {
-  if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
-  navLinks.classList.remove('active');
-  menuBtn.classList.remove('open');
-};
-
-const toggleSidebar = (e) => {
-  if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
-  
-  // Prevent ghost-click double-firing glitch
-  if (isMenuToggling) return;
-  isMenuToggling = true;
-  setTimeout(() => isMenuToggling = false, 350);
-
-  navLinks.classList.toggle('active');
-  menuBtn.classList.toggle('open');
-};
-
-if (sidebarClose) {
-  sidebarClose.addEventListener('click', closeSidebar);
-  sidebarClose.addEventListener('touchstart', closeSidebar, { passive: false });
-}
-
-if (menuBtn) {
-  menuBtn.addEventListener('click', toggleSidebar);
-  menuBtn.addEventListener('touchstart', toggleSidebar, { passive: false });
-}
-
-// Performance: Using Event Delegation instead of multiple memory-heavy listeners
-if (navLinks) navLinks.addEventListener('click', e => {
-  if (e.target.closest('a')) {
-    navLinks.classList.remove('active');
-    menuBtn.classList.remove('open');
-  }
-});
-const handleOutsideInteraction = e => {
-  if (navLinks && menuBtn && navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
-    navLinks.classList.remove('active');
-    menuBtn.classList.remove('open');
-  }
-};
-document.addEventListener('click', handleOutsideInteraction);
-document.addEventListener('touchstart', handleOutsideInteraction, { passive: true }); // Instant close on outside touch
 
 // Ensure back button correctly scrolls to the previous section
 window.addEventListener('hashchange', () => {
@@ -394,7 +349,7 @@ revealEls.forEach(el => revealObserver.observe(el));
 
 // Theme
 const themeOptions = document.querySelectorAll('.theme-option');
-let currentTheme = localStorage.getItem('theme') || 'system';
+let currentTheme = 'system';
 
 function updateThemeUI(theme) {
   if (theme === 'light') { document.documentElement.classList.add('light-theme'); }
@@ -411,8 +366,6 @@ window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', ()
 themeOptions.forEach(opt => {
   opt.addEventListener('click', e => {
     currentTheme = opt.dataset.theme;
-    if (currentTheme === 'system') localStorage.removeItem('theme');
-    else localStorage.setItem('theme', currentTheme);
     updateThemeUI(currentTheme);
   });
 });
@@ -429,8 +382,6 @@ document.querySelectorAll('.dt-toggle').forEach(toggle => {
       const targetTheme = btn.dataset.theme;
       if (targetTheme !== currentTheme) {
         currentTheme = targetTheme;
-        if (currentTheme === 'system') localStorage.removeItem('theme');
-        else localStorage.setItem('theme', currentTheme);
         updateThemeUI(currentTheme);
       }
     }
@@ -750,23 +701,7 @@ window.addEventListener('scroll', () => {
 
 // ── Security: Anti-Inspect & Self-XSS Deterrent ───────────────────
 
-// 1. Disable Right-Click (Context Menu)
-document.addEventListener('contextmenu', (e) => e.preventDefault());
-
-// 2. Block DevTools Keyboard Shortcuts (F12, Ctrl+Shift+I/J/C, Ctrl+U)
-document.addEventListener('keydown', (e) => {
-  if (
-    e.key === 'F12' ||
-    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-    (e.ctrlKey && e.key === 'U') ||
-    (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-    (e.metaKey && e.key === 'U')
-  ) {
-    e.preventDefault();
-  }
-});
-
-// 3. Console Self-XSS Warning
+// Console Self-XSS Warning (Industry Standard Practice)
 console.log(
   "%cStop!",
   "color: #ff3333; font-family: sans-serif; font-size: 4rem; font-weight: bolder; text-shadow: #000 1px 1px;"

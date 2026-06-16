@@ -9,8 +9,9 @@
   <!-- Security Headers -->
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-  <meta name="theme-color" content="#181824" id="themeColorMeta">
+  <!-- Enterprise-Grade Content Security Policy (CSP) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; frame-src 'self' https://docs.google.com;">
+  <meta name="theme-color" content="#20202c" id="themeColorMeta">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,8 +23,7 @@
 
   <!-- Apply theme immediately before rendering to prevent Dark Mode flashing -->
   <script>
-    const savedTheme = localStorage.getItem('theme') || 'system';
-    const isLight = savedTheme === 'light' || (savedTheme === 'system' && window.matchMedia('(prefers-color-scheme: light)').matches);
+    const isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
     if (isLight) {
       document.documentElement.classList.add('light-theme');
       document.getElementById('themeColorMeta').setAttribute('content', '#f9f9fb');
@@ -160,7 +160,7 @@
         </p>
         <div class="about-actions">
           <a href="#contact" class="btn-primary">Hire Me <i class="bi bi-send-fill"></i></a>
-          <a href="view.cv.pdf" target="_blank" rel="noopener" class="btn-ghost"><i class="bi bi-file-earmark-person"></i> Resume</a>
+          <a href="view.cv.pdf" id="viewResumeBtn" target="_blank" rel="noopener" class="btn-ghost"><i class="bi bi-file-earmark-person"></i> Resume</a>
         </div>
       </div>
 
@@ -211,18 +211,48 @@
     <div class="edu-layout">
       <h2 class="edu-heading reveal-up">Education</h2>
 
-      <div class="edu-card reveal-up">
-        <div class="edu-top">
-          <span class="edu-badge">B.E. Graduation</span>
-          <div class="edu-cgpa">
-            <span class="cgpa-num">8.6</span>
-            <span class="cgpa-label">CGPA</span>
+      <div class="edu-list">
+        <div class="edu-card reveal-up">
+          <div class="edu-top">
+            <span class="edu-badge">B.E. Graduation</span>
+            <div class="edu-cgpa">
+              <span class="cgpa-num">8.6</span>
+              <span class="cgpa-label">CGPA</span>
+            </div>
           </div>
+          <h3 class="edu-name">Shree Devi Institute Of Technology</h3>
+          <p class="edu-course"><i class="bi bi-journal-bookmark-fill"></i> Information Science &amp; Engineering</p>
+          <div class="edu-bar-wrap"><div class="edu-bar" style="--cgpa-w: 86%"></div></div>
+          <div class="edu-bar-label"><span>0</span><span>10</span></div>
         </div>
-        <h3 class="edu-name">Shree Devi Institute Of Technology</h3>
-        <p class="edu-course"><i class="bi bi-journal-bookmark-fill"></i> Information Science &amp; Engineering</p>
-        <div class="edu-bar-wrap"><div class="edu-bar" style="--cgpa-w: 86%"></div></div>
-        <div class="edu-bar-label"><span>0</span><span>10</span></div>
+
+        <div class="edu-card reveal-up">
+          <div class="edu-top">
+            <span class="edu-badge">Pre University</span>
+            <div class="edu-cgpa">
+              <span class="cgpa-num">77%</span>
+              <span class="cgpa-label">Score</span>
+            </div>
+          </div>
+          <h3 class="edu-name">Sri Rama Krishna College</h3>
+          <p class="edu-course"><i class="bi bi-journal-bookmark-fill"></i> Class XII (PUC)</p>
+          <div class="edu-bar-wrap"><div class="edu-bar" style="--cgpa-w: 77%"></div></div>
+          <div class="edu-bar-label"><span>0</span><span>100</span></div>
+        </div>
+
+        <div class="edu-card reveal-up">
+          <div class="edu-top">
+            <span class="edu-badge">Secondary School</span>
+            <div class="edu-cgpa">
+              <span class="cgpa-num">66%</span>
+              <span class="cgpa-label">Score</span>
+            </div>
+          </div>
+          <h3 class="edu-name">Sri Rama Krishna High School</h3>
+          <p class="edu-course"><i class="bi bi-journal-bookmark-fill"></i> Class X (SSLC)</p>
+          <div class="edu-bar-wrap"><div class="edu-bar" style="--cgpa-w: 66%"></div></div>
+          <div class="edu-bar-label"><span>0</span><span>100</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -294,7 +324,7 @@
       <div class="proj-item reveal-up">
         <div class="proj-left">
           <span class="proj-num">01</span>
-          <span class="proj-tag"><i class="bi bi-mortarboard-fill"></i> Final Year</span>
+          <span class="proj-tag"><i class="bi bi-mortarboard-fill"></i> Final Year Project</span>
         </div>
         <div class="proj-right">
           <h3>AI Chatbot For Mental Health Treatment</h3>
@@ -306,7 +336,7 @@
       <div class="proj-item reveal-up">
         <div class="proj-left">
           <span class="proj-num">02</span>
-          <span class="proj-tag"><i class="bi bi-briefcase-fill"></i> Client</span>
+          <span class="proj-tag"><i class="bi bi-briefcase-fill"></i> Client Project</span>
         </div>
         <div class="proj-right">
           <h3>ERP &amp; Inventory System</h3>
@@ -318,7 +348,7 @@
       <div class="proj-item reveal-up">
         <div class="proj-left">
           <span class="proj-num">03</span>
-          <span class="proj-tag"><i class="bi bi-folder2-open"></i> Mini</span>
+          <span class="proj-tag"><i class="bi bi-folder2-open"></i> Mini Project</span>
         </div>
         <div class="proj-right">
           <h3>Book Store</h3>
@@ -347,7 +377,6 @@
 
       <div class="contact-right reveal-up">
         <div class="contact-card">
-          <div class="cc-icon"><i class="bi bi-envelope-heart-fill"></i></div>
           <h3>Start a conversation</h3>
           <p>Reach out on any platform — I typically reply within a day or two. Whether it's a project inquiry or just a hello, I'd love to hear from you.</p>
           <div class="cc-links">
@@ -371,6 +400,28 @@
       </div>
     </div>
   </footer>
+
+  <!-- Resume Modal -->
+  <div class="resume-modal" id="resumeModal">
+    <div class="rm-content">
+      <div class="rm-header">
+        <h3 class="rm-title">Resume</h3>
+        <div class="rm-actions">
+          <a href="view.cv.pdf" download="Hriday_Resume.pdf" class="resume-modal-download" title="Download Resume"><i class="bi bi-download"></i></a>
+          <button id="refreshPdfBtn" class="rm-btn" title="Reload Document" style="display:none;"><i class="bi bi-arrow-clockwise"></i></button>
+          <button class="rm-btn" id="closeResumeModal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+        </div>
+      </div>
+      <div class="rm-body">
+        <div id="pdfLoader" class="pdf-loader">
+          <i class="bi bi-arrow-repeat loader-spinner"></i>
+          <div class="loader-status">Loading Document...</div>
+          <div class="loader-progress-bar"><div id="pdfLoaderProgress"></div></div>
+        </div>
+        <iframe class="resume-iframe" data-src="view.cv.pdf" title="Hriday's Resume"></iframe>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
