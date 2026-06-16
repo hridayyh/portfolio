@@ -1,4 +1,6 @@
 (() => {
+  'use strict';
+
 if (history.scrollRestoration) {
   history.scrollRestoration = 'manual';
 }
@@ -9,7 +11,6 @@ if (window.location.hash) {
 }
 
 (() => {
-  'use strict';
 
   // ── Preloader ────────────────────────────────
   const preloader = document.getElementById('preloader');
@@ -18,6 +19,7 @@ if (window.location.hash) {
   let prog = 0;
   let loaded = document.readyState === 'complete';
   const startTime = Date.now();
+  let isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
   const kickoff = () => {
     if (preloader) {
@@ -26,7 +28,13 @@ if (window.location.hash) {
     }
     
     setTimeout(() => {
-      document.querySelectorAll('.hero .reveal-fade').forEach((el, i) => { setTimeout(() => el.classList.add('in'), i * 120); });
+      document.querySelectorAll('.hero .reveal-fade').forEach((el, i) => {
+        setTimeout(() => {
+          el.classList.add('in');
+          // Cleanup composite layers after animation finishes to prevent memory bloat/lag
+          setTimeout(() => el.style.willChange = 'auto', 1000);
+        }, i * 120);
+      });
       if (typeof startTypewriter === 'function') startTypewriter();
     }, 150);
     
@@ -72,7 +80,7 @@ if (window.location.hash) {
       prog += (target - prog) * 0.15;
     }
 
-    if (preFill) preFill.style.width = prog + '%';
+    if (preFill) preFill.style.transform = `scaleX(${prog / 100})`;
     if (prePct) prePct.textContent = Math.floor(prog);
     
     // Completion depends ONLY on 'loaded', allowing cached offline pages to open
@@ -80,7 +88,7 @@ if (window.location.hash) {
       clearInterval(tick);
 
       // Ensure exact 100% visual state
-      if (preFill) preFill.style.width = '100%';
+      if (preFill) preFill.style.transform = 'scaleX(1)';
       if (prePct) prePct.textContent = '100';
 
       setTimeout(() => {
@@ -99,19 +107,19 @@ if (window.location.hash) {
   // Ultimate fallback: 15s timeout to prevent infinite hanging on bad connections
   setTimeout(() => { loaded = true; }, 15000);
   
-  window.addEventListener('offline', () => { isOnline = false; });
+  window.addEventListener('offline', () => { isOnline = false; }, { passive: true });
   window.addEventListener('online', () => { 
     isOnline = true; 
     if (document.readyState === 'complete') loaded = true;
-  });
+  }, { passive: true });
   
   // ── Typewriter ────────────────────────────────
-  const roles = [
+  const roles = Object.freeze([
     'Full Stack Developer',
     'MERN Stack Engineer',
     'React Developer',
     'Node.js Backend Dev',
-  ];
+  ]);
   let rIdx = 0, cIdx = 0, typing = true;
   const typedEl = document.getElementById('typedRole');
 
@@ -165,18 +173,31 @@ if (window.location.hash) {
   const hslProgress = document.querySelector('.hsl-progress');
   function updateScrollProgress() {
     const max = document.body.scrollHeight - window.innerHeight;
-    const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
-    if (hslProgress) hslProgress.style.width = pct + '%';
+    const pct = max > 0 ? (window.scrollY / max) : 0;
+    if (hslProgress) hslProgress.style.transform = `scaleX(${pct})`;
   }
 
   // ── Top nav active state ──────────────────────
   const sections = document.querySelectorAll('section[id]');
   const tbnLinks = document.querySelectorAll('.tbn-link');
+  let sectionOffsets = [];
+
+  // Cache offsets to prevent synchronous layout thrashing (heavy lag) during scroll
+  function calcOffsets() {
+    sectionOffsets = Array.from(sections).map(s => ({
+      id: s.id,
+      top: s.offsetTop - 200
+    }));
+  }
+  window.addEventListener('resize', calcOffsets, { passive: true });
+  window.addEventListener('load', calcOffsets);
+  calcOffsets();
 
   function updateSideNav() {
     let current = '';
-    sections.forEach(s => {
-      if (window.scrollY >= s.offsetTop - 200) current = s.id;
+    const scrollY = window.scrollY;
+    sectionOffsets.forEach(s => {
+      if (scrollY >= s.top) current = s.id;
     });
     tbnLinks.forEach(l => {
       l.classList.toggle('active', l.getAttribute('href') === '#' + current);

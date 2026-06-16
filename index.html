@@ -10,7 +10,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <!-- Enterprise-Grade Content Security Policy (CSP) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; frame-src 'self' https://docs.google.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; frame-src 'self' https://docs.google.com; object-src 'none'; base-uri 'none'; upgrade-insecure-requests;">
   <meta name="theme-color" content="#20202c" id="themeColorMeta">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -418,7 +418,7 @@
           <div class="loader-status">Loading Document...</div>
           <div class="loader-progress-bar"><div id="pdfLoaderProgress"></div></div>
         </div>
-        <iframe class="resume-iframe" data-src="view.cv.pdf" title="Hriday's Resume" sandbox="allow-scripts allow-same-origin"></iframe>
+        <iframe class="resume-iframe" data-src="view.cv.pdf#view=FitH&toolbar=0&navpanes=0" title="Hriday's Resume"></iframe>
       </div>
     </div>
   </div>
