@@ -3,9 +3,9 @@
    Palette: Ink White / Electric Indigo
    ══════════════════════════════════════ */
 :root {
-  --ink:      #12121a;
-  --ink2:     #181824;
-  --ink3:     #20202e;
+  --ink:      #181824;
+  --ink2:     #1f1f2e;
+  --ink3:     #28283a;
   --surface:  #f5f4f0;
   --white:    #ffffff;
   --white-rgb: 255, 255, 255;
@@ -115,18 +115,19 @@ body {
 #topbar {
   position: fixed;
   top: 0; left: 0; width: 100%;
-  z-index: 500;
+  z-index: 600;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 24px 48px;
-  transition: background 0.4s ease, padding 0.4s ease;
+  border-bottom: 1px solid transparent;
+  transition: background 0.4s ease, padding 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
 }
 #topbar.scrolled {
-  background: rgba(18,18,26,0.9);
+  background: rgba(24,24,36,0.9);
   backdrop-filter: blur(16px);
   padding: 16px 48px;
-  border-bottom: 1px solid var(--border);
+  border-bottom-color: var(--border);
 }
 .tb-logo {
   font-family: var(--ff-display);
@@ -135,8 +136,21 @@ body {
   text-decoration: none;
   letter-spacing: 2px;
   line-height: 1;
+  transition: filter 0.4s ease, opacity 0.4s ease;
 }
 .tb-logo span { color: var(--indigo); }
+
+/* When drawer is open, blend topbar into overlay and blur logo */
+#topbar.drawer-open {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border-bottom-color: transparent !important;
+}
+#topbar.drawer-open .tb-logo {
+  filter: blur(4px);
+  opacity: 0.4;
+  pointer-events: none;
+}
 
 .tb-menu {
   background: none; border: none;
@@ -149,11 +163,11 @@ body {
 .tb-menu span {
   display: block; height: 1.5px;
   background: var(--white);
-  transition: 0.3s var(--ease);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
   transform-origin: center;
 }
-.tb-menu.open span:nth-child(1) { transform: translateY(9.25px) rotate(45deg); }
-.tb-menu.open span:nth-child(2) { transform: translateY(-9.25px) rotate(-45deg); }
+.tb-menu.open span:nth-child(1) { transform: translateY(9.25px) rotate(45deg); background: var(--indigo); }
+.tb-menu.open span:nth-child(2) { transform: translateY(-9.25px) rotate(-45deg); background: var(--indigo); }
 
 .tb-nav {
   display: flex;
@@ -182,32 +196,22 @@ body {
 .drawer {
   position: fixed;
   top: 0; right: -100%;
-  width: min(380px, 100vw);
+  width: 70vw;
+  max-width: 320px;
   height: 100vh;
   background: var(--ink2);
   border-left: 1px solid var(--border);
-  z-index: 600;
+  z-index: 550;
   transition: right 0.5s var(--ease);
   display: flex; flex-direction: column;
 }
 .drawer.open { right: 0; }
 
 .drawer-inner {
-  padding: 80px 48px 48px;
+  padding: 90px 32px 48px;
   display: flex; flex-direction: column;
   height: 100%;
 }
-.drawer-close {
-  position: absolute; top: 24px; right: 24px;
-  background: none; border: 1px solid var(--border);
-  color: var(--white); font-size: 18px;
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: 0.2s;
-}
-.drawer-close:hover { border-color: var(--indigo); color: var(--indigo); }
 
 .drawer-nav {
   flex: 1;
@@ -218,7 +222,7 @@ body {
   display: flex; align-items: baseline; gap: 16px;
   text-decoration: none;
   color: rgba(var(--white-rgb), 0.5);
-  font-size: clamp(28px, 6vw, 40px);
+  font-size: clamp(22px, 5vw, 32px);
   font-family: var(--ff-display);
   letter-spacing: 2px;
   line-height: 1.4;
@@ -262,24 +266,45 @@ body {
   display: flex; gap: 4px; padding: 4px;
   background: rgba(var(--white-rgb), 0.04);
   border: 1px solid var(--border); border-radius: 20px;
+  position: relative;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
+.dt-toggle::before {
+  content: '';
+  position: absolute;
+  top: 4px; left: 4px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--indigo);
+  box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s;
+  z-index: 1;
+  opacity: 0;
+}
+.dt-toggle[data-active]::before { opacity: 1; }
+.dt-toggle[data-active="light"]::before { transform: translateX(0); }
+.dt-toggle[data-active="system"]::before { transform: translateX(36px); }
+.dt-toggle[data-active="dark"]::before { transform: translateX(72px); }
+
 .theme-option {
   background: transparent; border: none; color: var(--muted);
   width: 32px; height: 32px; border-radius: 50%;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   font-size: 14px; transition: all 0.3s var(--ease);
+  position: relative; z-index: 2;
 }
 .theme-option:hover { color: var(--white); }
 .theme-option.active {
-  background: var(--indigo); color: #ffffff;
-  box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+  color: #ffffff;
 }
 
 .drawer-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(4px);
-  z-index: 550;
+  z-index: 500;
   opacity: 0; pointer-events: none;
   transition: opacity 0.4s;
 }
@@ -511,6 +536,11 @@ body {
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+/* Mobile Scroll Indicator */
+.mobile-scroll-indicator {
+  display: none;
 }
 
 /* Hero socials (vertical) */
@@ -1140,6 +1170,26 @@ body {
   .hero-stats { gap: 20px; }
   .hs-item strong { font-size: 28px; }
   .hero-scroll-line { display: none; } /* Prevents overlap on smaller screens */
+
+  .mobile-scroll-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+  }
+  .mobile-scroll-indicator span {
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    user-select: none;
+    opacity: 0.7;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1152,7 +1202,7 @@ body {
   .footer-inner { flex-direction: column; text-align: center; }
 
   .section { padding: 60px 5% 60px; }
-  .drawer-inner { padding: 60px 24px 48px; }
+  .drawer-inner { padding: 80px 24px 48px; }
   .exp-meta { flex-wrap: wrap; gap: 8px; }
   .exp-number { font-size: 60px; right: 16px; bottom: 16px; }
   .edu-top { flex-direction: column; gap: 12px; }

@@ -190,27 +190,34 @@ if (initialHash) {
   // ── Mobile Drawer ─────────────────────────────
   const tbMenu        = document.getElementById('tbMenu');
   const drawer        = document.getElementById('drawer');
-  const drawerClose   = document.getElementById('drawerClose');
   const drawerOverlay = document.getElementById('drawerOverlay');
 
-  const openDrawer = () => {
+  const openDrawer = (e) => {
+    if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
     drawer.classList.add('open');
     drawerOverlay.classList.add('show');
     tbMenu.classList.add('open');
+    topbar.classList.add('drawer-open');
     document.body.style.overflow = 'hidden';
   };
-  const closeDrawer = () => {
+  const closeDrawer = (e) => {
+    if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
     drawer.classList.remove('open');
     drawerOverlay.classList.remove('show');
     tbMenu.classList.remove('open');
+    topbar.classList.remove('drawer-open');
     document.body.style.overflow = '';
   };
 
-  tbMenu.addEventListener('click', () => {
-    drawer.classList.contains('open') ? closeDrawer() : openDrawer();
-  });
-  drawerClose.addEventListener('click', closeDrawer);
+  const toggleDrawer = (e) => {
+    drawer.classList.contains('open') ? closeDrawer(e) : openDrawer(e);
+  };
+
+  tbMenu.addEventListener('click', toggleDrawer);
+  tbMenu.addEventListener('touchstart', toggleDrawer, { passive: false });
+
   drawerOverlay.addEventListener('click', closeDrawer);
+  drawerOverlay.addEventListener('touchstart', closeDrawer, { passive: false });
 
   document.querySelectorAll('.dn-link').forEach(link => {
     link.addEventListener('click', closeDrawer);
@@ -396,6 +403,7 @@ function updateThemeUI(theme) {
     document.documentElement.classList.toggle('light-theme', window.matchMedia('(prefers-color-scheme: light)').matches);
   }
   if (themeOptions) themeOptions.forEach(opt => opt.classList.toggle('active', opt.dataset.theme === theme));
+  document.querySelectorAll('.dt-toggle').forEach(t => t.setAttribute('data-active', theme));
 }
 updateThemeUI(currentTheme);
 window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (currentTheme === 'system') updateThemeUI('system'); });
@@ -407,6 +415,26 @@ themeOptions.forEach(opt => {
     else localStorage.setItem('theme', currentTheme);
     updateThemeUI(currentTheme);
   });
+});
+
+// Allow drag/swipe over theme toggles on mobile to shift options smoothly
+document.querySelectorAll('.dt-toggle').forEach(toggle => {
+  toggle.addEventListener('touchmove', e => {
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    const btn = el ? el.closest('.theme-option') : null;
+    
+    if (btn && toggle.contains(btn)) {
+      e.preventDefault(); // Prevents page from scrolling while swiping toggle
+      const targetTheme = btn.dataset.theme;
+      if (targetTheme !== currentTheme) {
+        currentTheme = targetTheme;
+        if (currentTheme === 'system') localStorage.removeItem('theme');
+        else localStorage.setItem('theme', currentTheme);
+        updateThemeUI(currentTheme);
+      }
+    }
+  }, { passive: false });
 });
 
 // Toast
