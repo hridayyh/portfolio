@@ -59,6 +59,9 @@ body {
   color: var(--white);
   overflow-x: hidden;
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection { background: var(--indigo); color: #fff; }
@@ -383,7 +386,11 @@ body {
 /* ══════════════════════════════════════
    SECTION COMMONS
    ══════════════════════════════════════ */
-.section { padding: 120px 7% 120px; }
+.section { 
+  padding: 120px 7% 120px; 
+  content-visibility: auto;
+  contain-intrinsic-size: 0 800px;
+}
 
 .sec-eyebrow {
   font-family: var(--ff-mono);

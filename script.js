@@ -315,8 +315,13 @@ if (window.location.hash) {
 // Ensure back button correctly scrolls to the previous section
 window.addEventListener('hashchange', () => {
   // Close mobile menu if it is open while navigating back
-  if (navLinks) navLinks.classList.remove('active');
-  if (menuBtn) menuBtn.classList.remove('open');
+  const activeDrawer = document.getElementById('drawer');
+  if (activeDrawer && activeDrawer.classList.contains('open')) {
+    activeDrawer.classList.remove('open');
+    document.getElementById('tbMenu')?.classList.remove('open');
+    document.getElementById('drawerOverlay')?.classList.remove('show');
+    document.body.style.overflow = '';
+  }
 
   setTimeout(() => {
     const hash = window.location.hash;
@@ -333,19 +338,6 @@ window.addEventListener('hashchange', () => {
     }
   }, 10);
 });
-
-// Scroll reveal
-const revealEls = document.querySelectorAll('.reveal');
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => { 
-    if (e.isIntersecting) { 
-      e.target.classList.add('visible'); 
-      revealObserver.unobserve(e.target); // Memory optimization: stops tracking once revealed
-      setTimeout(() => e.target.style.willChange = 'auto', 1200); // GPU optimization: frees up VRAM
-    } 
-  });
-}, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' }); // Better trigger point prevents early pop-ins
-revealEls.forEach(el => revealObserver.observe(el));
 
 // Theme
 const themeOptions = document.querySelectorAll('.theme-option');
@@ -653,50 +645,6 @@ if (downloadModalBtn) {
     }
   });
 }
-
-// Scroll top
-const scrollTopBtn = document.getElementById('scrollTopBtn');
-const aboutSection = document.getElementById('about');
-
-if (scrollTopBtn) {
-  const handleScrollTopInteraction = (e) => {
-    if (e && e.type === 'touchstart' && e.cancelable) e.preventDefault();
-    else if (e && e.type === 'click') e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (window.history.pushState) window.history.pushState(null, null, window.location.pathname);
-  };
-  scrollTopBtn.addEventListener('click', handleScrollTopInteraction);
-  scrollTopBtn.addEventListener('touchstart', handleScrollTopInteraction, { passive: false });
-}
-
-let lastST = 0, stTimeout;
-// Centralized High-Performance Scroll Loop (Optimizes CPU/GPU & prevents scroll lag)
-let scrollTicking = false;
-window.addEventListener('scroll', () => {
-  if (!scrollTicking) {
-    window.requestAnimationFrame(() => {
-      const cur = window.scrollY || window.pageYOffset;
-      
-      // 1. Sticky Header UI
-      if (mainHeader) {
-        if (cur > 80) mainHeader.classList.add('scrolled');
-        else mainHeader.classList.remove('scrolled');
-      }
-
-      // 2. Scroll Top Btn UI
-      if (aboutSection && scrollTopBtn) {
-        if (cur > aboutSection.offsetTop && cur < lastST) scrollTopBtn.classList.add('show');
-        else scrollTopBtn.classList.remove('show');
-        lastST = cur <= 0 ? 0 : cur;
-        clearTimeout(stTimeout);
-        stTimeout = setTimeout(() => scrollTopBtn.classList.remove('show'), 1500);
-      }
-
-      scrollTicking = false;
-    });
-    scrollTicking = true;
-  }
-}, { passive: true });
 })();
 
 // ── Security: Anti-Inspect & Self-XSS Deterrent ───────────────────
