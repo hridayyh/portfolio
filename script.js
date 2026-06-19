@@ -159,9 +159,13 @@ if (window.location.hash) {
   const onScroll = () => {
     if (!scrollTicking) {
       requestAnimationFrame(() => {
-        topbar.classList.toggle('scrolled', window.scrollY > 80);
-        updateScrollProgress();
-        updateSideNav();
+        const scrollY = window.scrollY;
+        topbar.classList.toggle('scrolled', scrollY > 80);
+        
+        // Only update scroll progress if near the top to save layout computations
+        if (scrollY < window.innerHeight * 1.5) {
+          updateScrollProgress(scrollY);
+        }
         scrollTicking = false;
       });
       scrollTicking = true;
@@ -171,38 +175,36 @@ if (window.location.hash) {
 
   // ── Scroll progress in hero ───────────────────
   const hslProgress = document.querySelector('.hsl-progress');
-  function updateScrollProgress() {
+  function updateScrollProgress(scrollY) {
     const max = document.body.scrollHeight - window.innerHeight;
-    const pct = max > 0 ? (window.scrollY / max) : 0;
+    const pct = max > 0 ? (scrollY / max) : 0;
     if (hslProgress) hslProgress.style.transform = `scaleX(${pct})`;
   }
 
-  // ── Top nav active state ──────────────────────
+  // ── Top nav active state (Optimized) ──────────
   const sections = document.querySelectorAll('section[id]');
   const tbnLinks = document.querySelectorAll('.tbn-link');
-  let sectionOffsets = [];
+  
+  const navObserverOptions = {
+    root: null,
+    rootMargin: '-20% 0px -75% 0px',
+    threshold: 0
+  };
 
-  // Cache offsets to prevent synchronous layout thrashing (heavy lag) during scroll
-  function calcOffsets() {
-    sectionOffsets = Array.from(sections).map(s => ({
-      id: s.id,
-      top: s.offsetTop - 200
-    }));
-  }
-  window.addEventListener('resize', calcOffsets, { passive: true });
-  window.addEventListener('load', calcOffsets);
-  calcOffsets();
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        tbnLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, navObserverOptions);
 
-  function updateSideNav() {
-    let current = '';
-    const scrollY = window.scrollY;
-    sectionOffsets.forEach(s => {
-      if (scrollY >= s.top) current = s.id;
-    });
-    tbnLinks.forEach(l => {
-      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
-    });
-  }
+  sections.forEach(section => {
+    navObserver.observe(section);
+  });
 
   // ── Mobile Drawer ─────────────────────────────
   const tbMenu        = document.getElementById('tbMenu');
